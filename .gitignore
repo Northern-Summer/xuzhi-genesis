@@ -1,0 +1,5 @@
+logs/
+*.log
+*.bak
+*.swp
+cron/dynamic_crontab.txt

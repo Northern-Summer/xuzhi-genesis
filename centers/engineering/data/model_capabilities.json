@@ -1,0 +1,18 @@
+{
+  "deepseek-v3.2": 6,
+  "deepseek-v3.2-thinking": 7,
+  "glm-4.7": 6,
+  "minimax-m2.1": 6,
+  "kimi-k2.5": 7,
+  "glm-5": 7,
+  "minimax-m2.5": 7,
+  "lfm2.5-thinking": 3,
+  "lfm2.5-thinking-optimized": 3,
+  "gemini-3-flash-preview": 6,
+  "gemini-3-flash-preview:cloud": 6,
+  "qwen3.5:4b": 4,
+  "qwen3.5:9b": 5,
+  "gemma3:4b": 4,
+  "qwen3-vl:8b": 6,
+  "openrouter-default": 5
+}
