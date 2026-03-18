@@ -18,7 +18,7 @@
       "capability": 3
     },
     "scientist": {
-      "score": 4,
+      "score": 5,
       "history": [
         {
           "date": "2026-03-18",
@@ -29,6 +29,11 @@
           "date": "2026-03-18T00:32:54.678112",
           "delta": -1,
           "reason": "任务 4 评价净得分 -2"
+        },
+        {
+          "date": "2026-03-18T14:00:06.667757",
+          "delta": 1,
+          "reason": "竞争任务 12 评价净得分 3"
         }
       ],
       "department": "science",
@@ -59,5 +64,5 @@
       "capability": 2
     }
   },
-  "last_updated": "2026-03-18T12:15:51.421667"
+  "last_updated": "2026-03-18T14:00:06.667768"
 }
