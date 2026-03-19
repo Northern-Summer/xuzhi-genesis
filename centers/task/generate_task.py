@@ -5,7 +5,6 @@
 """
 import json
 import sys
-import random
 from pathlib import Path
 from datetime import datetime, timedelta
 import sqlite3
@@ -44,21 +43,21 @@ def load_templates():
 
 def generate_hypothesis_from_knowledge(agent_dept):
     """从知识图谱中挖掘假设"""
+    if not KNOWLEDGE_DB.exists():
+        return None
     conn = sqlite3.connect(KNOWLEDGE_DB)
     c = conn.cursor()
-    # 寻找实体间没有直接关系但可能有关联的候选
-    # 简化：随机选取两个实体，如果它们之间没有直接关系，则生成探索因果的假设
+    # 随机选取两个实体
     c.execute("SELECT name FROM entities ORDER BY RANDOM() LIMIT 2")
     rows = c.fetchall()
     conn.close()
     if len(rows) < 2:
         return None
     e1, e2 = rows[0][0], rows[1][0]
-    # 检查是否有直接关系
-    # 这里简化，直接生成假设
+    # 检查是否有直接关系（简化）
     templates = load_templates()
     if templates:
-        t = random.choice(templates)
+        t = templates[0]
         description = t["description"].replace("{entityA}", e1).replace("{entityB}", e2)
         task_type = t["type"]
         dept = t.get("department", agent_dept)
@@ -76,7 +75,7 @@ def generate_hypothesis_from_knowledge(agent_dept):
 def generate_regular_task(agent_id, dept):
     """生成常规任务（后备）"""
     themes = DEPT_THEMES.get(dept, DEPT_THEMES["mind"])
-    title_template = random.choice(themes["titles"])
+    title_template = themes["titles"][0] if themes["titles"] else ""
     title = title_template.format(dept) if "{}" in title_template else title_template
     description = themes["desc"].format(title)
     return {
@@ -85,6 +84,19 @@ def generate_regular_task(agent_id, dept):
         "description": description,
         "department": dept
     }
+
+def get_next_id(data):
+    """安全获取下一个任务ID"""
+    if "next_id" in data:
+        return data["next_id"]
+    else:
+        # 从现有任务计算最大ID
+        tasks = data.get("tasks", [])
+        if tasks:
+            max_id = max(t.get("id", 0) for t in tasks)
+            return max_id + 1
+        else:
+            return 1
 
 def main():
     import argparse
@@ -115,12 +127,18 @@ def main():
     with open(TASKS_JSON) as f:
         data = json.load(f)
 
+    # 确保 tasks 键存在
+    if "tasks" not in data:
+        data["tasks"] = []
+
+    new_id = get_next_id(data)
+
     new_task = {
-        "id": data["next_id"],
+        "id": new_id,
         "title": task_info["title"],
         "type": task_info.get("type", "简单"),
         "department": task_info.get("department", dept),
-        "mode": random.choice(["competition", "cooperation"]),
+        "mode": "competition" if task_info.get("type") == "验证假设" else "cooperation",
         "description": task_info["description"],
         "created": datetime.now().isoformat(),
         "deadline": (datetime.now() + timedelta(days=1)).isoformat(),
@@ -134,7 +152,7 @@ def main():
     }
 
     data["tasks"].append(new_task)
-    data["next_id"] += 1
+    data["next_id"] = new_id + 1
     data["last_updated"] = datetime.now().isoformat()
 
     save_json(TASKS_JSON, data)

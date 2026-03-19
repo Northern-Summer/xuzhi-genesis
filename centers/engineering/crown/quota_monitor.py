@@ -208,7 +208,8 @@ def adjust_cron(quota):
 */10 * * * * $HOME/.openclaw/workspace/pulse_aggressive.sh
 
 # 每日心智种子（固定凌晨3点）
-0 3 * * * $HOME/.openclaw/centers/intelligence/seeds/daily_mind_seeds_v2.py
+0 */6 * * * $HOME/.openclaw/centers/intelligence/seeds/daily_mind_seeds_v2.py
+@reboot $HOME/.openclaw/centers/intelligence/seeds/daily_mind_seeds_v2.py  # 开机运行一次
 
 # 记忆压缩（每小时）
 0 * * * * $HOME/.openclaw/centers/engineering/memory_forge.py

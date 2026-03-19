@@ -4,7 +4,6 @@
 """
 import json
 import sqlite3
-import random
 import requests
 import sys
 from pathlib import Path
@@ -108,7 +107,9 @@ def main():
         return
 
     # 随机选择一条边
-    cause, effect, pred, conf = random.choice(edges)
+    # 按置信度排序，选择最高置信度的因果边
+    edges_sorted = sorted(edges, key=lambda x: x[3], reverse=True)
+    cause, effect, pred, conf = edges_sorted[0]
     question = generate_counterfactual_question(cause, effect, pred, conf)
     if not question:
         return

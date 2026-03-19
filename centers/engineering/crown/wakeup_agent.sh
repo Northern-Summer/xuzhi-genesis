@@ -12,7 +12,6 @@ python3 << EOF2
 import json
 from pathlib import Path
 from datetime import datetime
-import random
 import subprocess
 import sys
 
@@ -78,9 +77,26 @@ if pending_tasks:
 completed_tasks = [t for t in data.get('tasks', []) if t.get('status') == '完成' and not t.get('score_processed', False)]
 
 if completed_tasks:
-    task = random.choice(completed_tasks)
+    # 按任务 ID 升序选择最早的任务（ID 越小越早创建）
+    completed_tasks.sort(key=lambda t: t['id'])
+    task = completed_tasks[0]
     task_id = task['id']
-    vote = random.choice(['good', 'bad'])
+
+    # 获取当前智能体的评分
+    ratings_file = Path.home() / ".openclaw" / "centers" / "mind" / "society" / "ratings.json"
+    with open(ratings_file) as rf:
+        ratings = json.load(rf)
+    current_score = ratings.get("agents", {}).get(agent, {}).get("score", 5)
+
+    # 获取任务完成者的平均评分
+    completed_by = task.get('completed_by', [])
+    if completed_by:
+        scores = [ratings.get("agents", {}).get(c, {}).get("score", 5) for c in completed_by]
+        avg_score = sum(scores) / len(scores)
+        vote = 'good' if avg_score >= current_score else 'bad'
+    else:
+        vote = 'good'
+
     subprocess.run([str(vote_script), str(task_id), agent, vote])
     print(f"[{agent}] 对任务 {task_id} 投票: {vote}")
     update_last_active(agent)

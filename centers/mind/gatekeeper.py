@@ -35,45 +35,56 @@ RESET = "\033[0m"
 # --- 配置区结束 ---
 
 def fetch_official_reference():
-    """从官方文档中提取配置结构（模拟实现，需根据实际情况调整）"""
+    """从官方源获取配置参考（优先使用GitHub示例，其次文档提取）"""
+    # 官方GitHub示例配置URL（根据实际情况调整）
+    GITHUB_RAW_URL = "https://raw.githubusercontent.com/openclaw/openclaw/main/config.example.json"
+    # 文档URL（备用）
+    DOCS_URL = "https://docs.openclaw.ai/zh-CN"
+
     try:
-        print(f"{BLUE}📡 正在获取官方配置参考...{RESET}")
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        response = requests.get(OFFICIAL_REFERENCE_URL, headers=headers, timeout=10)
-        response.encoding = 'utf-8'
-        html_content = response.text
-
-        # 从HTML中提取JSON代码块（假设官方文档中有```json ... ```的示例）
-        # 这是一个简化的提取逻辑，实际可能需要根据网页结构调整
-        json_pattern = r'```json\s*(\{.*?\})\s*```'
-        matches = re.findall(json_pattern, html_content, re.DOTALL)
-
-        if matches:
-            # 取第一个JSON代码块作为参考
-            ref_json_str = matches[0]
-            ref_config = json.loads(ref_json_str)
-            print(f"{GREEN}✅ 成功从官方文档提取配置参考{RESET}")
+        print(f"{BLUE}📡 正在从GitHub获取官方示例配置...{RESET}")
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(GITHUB_RAW_URL, headers=headers, timeout=10)
+        if response.status_code == 200:
+            ref_config = response.json()
+            print(f"{GREEN}✅ 成功从GitHub获取配置参考{RESET}")
             return ref_config
         else:
-            # 如果提取失败，回退到一个基于官方文档描述的“理想结构”
-            print(f"{YELLOW}⚠️ 未能从文档提取JSON，将使用内置的参考结构（基于官方文档描述）。{RESET}")
-            # 这个内置结构需要根据最新官方文档手动维护
-            builtin_ref = {
-                "models": {"mode": "merge", "providers": {}},
-                "agents": {"defaults": {"model": {}, "workspace": ""}},
-                "gateway": {"port": 18789, "mode": "local"},
-                "channels": {"whatsapp": {"allowFrom": []}},
-                "session": {"reset": {}},
-                "tools": {"profile": "coding"}
-            }
-            return builtin_ref
+            print(f"{YELLOW}⚠️ GitHub获取失败，尝试从文档页面提取...{RESET}")
+    except Exception as e:
+        print(f"{YELLOW}⚠️ GitHub请求异常: {e}，尝试从文档提取...{RESET}")
 
-    except requests.exceptions.RequestException as e:
-        print(f"{RED}❌ 网络请求失败: {e}{RESET}")
-        return None
-    except json.JSONDecodeError as e:
-        print(f"{RED}❌ 解析官方配置失败: {e}{RESET}")
-        return None
+    # 备用：从文档HTML提取JSON代码块
+    try:
+        print(f"{BLUE}📡 正在从文档页面提取配置...{RESET}")
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(DOCS_URL, headers=headers, timeout=10)
+        response.encoding = 'utf-8'
+        html = response.text
+
+        # 查找JSON代码块
+        json_pattern = r'```json\s*(\{.*?\})\s*```'
+        matches = re.findall(json_pattern, html, re.DOTALL)
+        if matches:
+            ref_config = json.loads(matches[0])
+            print(f"{GREEN}✅ 成功从文档提取配置参考{RESET}")
+            return ref_config
+        else:
+            print(f"{YELLOW}⚠️ 文档中未找到JSON代码块{RESET}")
+    except Exception as e:
+        print(f"{YELLOW}⚠️ 文档提取失败: {e}{RESET}")
+
+    # 最后备用：使用内置参考结构（明确告知用户）
+    print(f"{YELLOW}⚠️ 所有在线源均失败，将使用内置参考结构（可能已过时）{RESET}")
+    builtin_ref = {
+        "models": {"mode": "merge", "providers": {}},
+        "agents": {"defaults": {"model": {}, "workspace": ""}},
+        "gateway": {"port": 18789, "mode": "local"},
+        "channels": {"whatsapp": {"allowFrom": []}},
+        "session": {"reset": {}},
+        "tools": {"profile": "coding"}
+    }
+    return builtin_ref
 
 def load_local_config():
     """加载本地配置文件"""
@@ -204,66 +215,13 @@ def show_social_ratings():
                 for agent_id, info in sorted_agents:
                     score = info.get("score", 0)
                     print(f"  {agent_id}: {GREEN}{score}{RESET}")
-                print(f"\n最后更新: {data.get("last_updated", 未知)}")
+                print(f"\n最后更新: {data.get('last_updated', '未知')}")
             else:
                 print(f"  {YELLOW}暂无智能体评价{RESET}")
         except Exception as e:
             print(f"{RED}读取评价失败: {e}{RESET}")
     else:
         print(f"{YELLOW}评价文件不存在{RESET}")
-
-
-def show_social_ratings():
-    """显示当前社会评价（只读）"""
-    ratings_file = Path.home() / ".openclaw" / "centers" / "mind" / "society" / "ratings.json"
-    if ratings_file.exists():
-        try:
-            with open(ratings_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            print(f"\n{BLUE}========================================{RESET}")
-            print(f"{BLUE}          当前社会评价状态          {RESET}")
-            print(f"{BLUE}========================================{RESET}")
-            agents = data.get("agents", {})
-            if agents:
-                # 按分数排序
-                sorted_agents = sorted(agents.items(), key=lambda x: x[1].get("score", 0), reverse=True)
-                for agent_id, info in sorted_agents:
-                    score = info.get("score", 0)
-                    print(f"  {agent_id}: {GREEN}{score}{RESET}")
-                print(f"\n最后更新: {data.get("last_updated", 未知)}")
-            else:
-                print(f"  {YELLOW}暂无智能体评价{RESET}")
-        except Exception as e:
-            print(f"{RED}读取评价失败: {e}{RESET}")
-    else:
-        print(f"{YELLOW}评价文件不存在{RESET}")
-
-
-def show_social_ratings():
-    """显示当前社会评价（只读）"""
-    ratings_file = Path.home() / ".openclaw" / "centers" / "mind" / "society" / "ratings.json"
-    if ratings_file.exists():
-        try:
-            with open(ratings_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            print(f"\n{BLUE}========================================{RESET}")
-            print(f"{BLUE}          当前社会评价状态          {RESET}")
-            print(f"{BLUE}========================================{RESET}")
-            agents = data.get("agents", {})
-            if agents:
-                # 按分数排序
-                sorted_agents = sorted(agents.items(), key=lambda x: x[1].get("score", 0), reverse=True)
-                for agent_id, info in sorted_agents:
-                    score = info.get("score", 0)
-                    print(f"  {agent_id}: {GREEN}{score}{RESET}")
-                print(f"\n最后更新: {data.get("last_updated", '未知')}")
-            else:
-                print(f"  {YELLOW}暂无智能体评价{RESET}")
-        except Exception as e:
-            print(f"{RED}读取评价失败: {e}{RESET}")
-    else:
-        print(f"{YELLOW}评价文件不存在{RESET}")
-
 
 if __name__ == "__main__":
     main()
