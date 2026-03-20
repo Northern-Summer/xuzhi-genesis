@@ -8,7 +8,7 @@ sys.stderr.reconfigure(line_buffering=True)
 XUZHI = Path.home() / "xuzhi_genesis"
 CENTERS = ["engineering", "intelligence", "meta", "mind", "system", "task"]
 CACHE = XUZHI / "centers/mind/.probe_cache.json"
-GIT = ["git", "-C", str(XUZHI)]
+GIT = ["git", "-C", str(XUZHI), "--no-pager", "--color=never"]
 
 def load():
     if CACHE.exists():
