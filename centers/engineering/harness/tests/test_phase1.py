@@ -118,7 +118,7 @@ def test_truncation():
     print(f"  Result: {result}")
     
     print("\n✅ Truncation OK")
-    return True
+    assert True
 
 
 def test_guards():
