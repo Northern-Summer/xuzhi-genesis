@@ -1,6 +1,75 @@
-logs/
-*.log
-*.bak
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
 *.swp
-cron/dynamic_crontab.txt
-backups/
+*.swo
+*~
+
+# Node (if any)
+node_modules/
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Credentials & Secrets (NEVER COMMIT)
+credentials/
+*.pem
+*.key
+.env
+.env.*
+secrets/
+token*
+
+# Backups (local only)
+backups/*.tar.gz
+backups/*.zip
+
+# Temporary files
+*.tmp
+*.bak
+*.bak.*
+.cache/
+
+# OpenClaw (workspace is synced separately)
+.openclaw/logs/
+.openclaw/sessions/
+.openclaw/agents/*/sessions/sessions.json
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS temporary files
+.fseventsd/
+.spotlight/
+.trashes/
+.Spotlight-V100/
