@@ -1,6 +1,7 @@
 """
 Harness Agent - Phase 3 端到端集成
-核心: 连接 Model + Executor + Loop，形成完整 Agent
+Phase 4 增强: 集成 ResourceMonitor + DynamicRouter
+核心: 连接 Model + Executor + Loop + Monitor + Router
 """
 
 from __future__ import annotations
@@ -14,6 +15,8 @@ from core.model import ModelConfig, LitellmModel, CostStats
 from core.retry import LoopConfig, LoopStats, LoopInterrupt, StepLimitExceeded, CostLimitExceeded
 from executor.bash import BashExecutor, BashConfig
 from context.optimized_cache import OptimizedCache, OptimizedCacheConfig
+from monitor.resource_monitor import ResourceMonitor, get_monitor, SystemStatus
+from router.dynamic_router import DynamicRouter, Task, TaskType, RoutingStrategy, get_router
 
 logger = logging.getLogger("harness")
 
@@ -37,6 +40,9 @@ class HarnessConfig:
     # 缓存
     cache: OptimizedCacheConfig = field(default_factory=OptimizedCacheConfig)
     
+    # 路由策略
+    routing_strategy: RoutingStrategy = RoutingStrategy.BALANCED
+    
     # 工具
     tools: list[str] = field(default_factory=lambda: ["bash", "read", "write", "edit"])
     
@@ -57,13 +63,15 @@ Available tools: bash, read, write, edit
 
 class HarnessAgent:
     """
-    端到端 Harness Agent
+    端到端 Harness Agent (Phase 3 + Phase 4)
     
     集成:
     - Model: API 调用
     - Executor: 命令执行
     - Loop: 主循环控制
     - Cache: 请求缓存
+    - Monitor: 资源监测 (Phase 4)
+    - Router: 智能路由 (Phase 4)
     """
     
     def __init__(self, config: HarnessConfig | None = None, model=None):
@@ -84,6 +92,11 @@ class HarnessAgent:
         self.executor = BashExecutor(self.config.bash)
         self.cache = OptimizedCache(self.config.cache)
         
+        # Phase 4: 资源监测器 + 路由器
+        self.monitor = get_monitor()
+        router_config = None  # 使用默认配置
+        self.router = get_router(router_config)
+        
         # 消息历史
         self.messages: list[dict] = []
         
@@ -98,7 +111,8 @@ class HarnessAgent:
             "edit": self._tool_edit,
         }
         
-        logger.info(f"HarnessAgent initialized with model={self.config.model.model_name}")
+        logger.info(f"HarnessAgent initialized: model={self.config.model.model_name}, "
+                   f"router={self.config.routing_strategy.value}")
     
     # =========================================================================
     # 工具
@@ -271,12 +285,29 @@ class HarnessAgent:
                 if config.max_cost > 0 and self.loop_stats.cost >= config.max_cost:
                     raise CostLimitExceeded(config.max_cost, self.loop_stats.cost)
                 
+                # Phase 4: 路由决策 (每轮根据系统状态)
+                task = Task(
+                    type=TaskType.AGENTIC,
+                    estimated_tokens=sum(len(m.get("content", "")) for m in self.messages) // 4,
+                )
+                routing_decision = self.router.route(task)
+                
                 # 查询模型
                 logger.debug(f"Step {self.loop_stats.steps + 1}: Querying model...")
+                step_start = time.time()
                 response = self.model.query(self.messages)
+                step_latency = (time.time() - step_start) * 1000
                 
-                # 记录成本
+                # Phase 4: 记录到监测器
                 step_cost = response.get("extra", {}).get("cost", 0.0)
+                tokens = response.get("extra", {}).get("usage", {}).get("total_tokens", 0)
+                success = response.get("role") == "assistant"
+                self.monitor.record_model_call(
+                    latency_ms=step_latency,
+                    success=success,
+                    tokens=tokens,
+                    model_name=self.config.model.model_name,
+                )
                 self.loop_stats.record_step(step_cost)
                 
                 # 提取回复内容
@@ -340,11 +371,32 @@ class HarnessAgent:
             "loop_stats": self.loop_stats.to_dict(),
             "cost_stats": self.model.get_stats(),
             "cache_stats": self.cache.get_stats(),
+            "system_status": self.get_system_status(),
             "messages": self.messages,
         }
     
     # =========================================================================
     # 兼容方法
+    # =========================================================================
+    # 系统状态 (Phase 4)
+    # =========================================================================
+    
+    def get_system_status(self) -> dict:
+        """获取系统状态 (供外部调用)"""
+        status = self.monitor.get_status()
+        return {
+            "health_score": status.health_score,
+            "is_healthy": status.is_healthy,
+            "cpu_percent": status.cpu_percent,
+            "memory_percent": status.memory_percent,
+            "avg_latency_ms": status.avg_latency_ms,
+            "success_rate": status.success_rate,
+            "cache_hit_rate": status.cache_hit_rate,
+            "tokens_per_minute": status.tokens_per_minute,
+            "cost_today": status.cost_today,
+            "recommended_action": status.recommended_action,
+        }
+    
     # =========================================================================
     
     def query(self, user_message: str, **kwargs) -> dict:
