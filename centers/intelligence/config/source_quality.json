@@ -16,8 +16,8 @@
       "tier": "A",
       "health_score": 1.0,
       "contribution_score": 7.5,
-      "attempts": 19,
-      "successes": 19,
+      "attempts": 20,
+      "successes": 20,
       "last_status": "success",
       "last_check": "2026-03-20T23:17:36.765161",
       "last_probe_detail": {

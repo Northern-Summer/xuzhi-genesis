@@ -1,0 +1,29 @@
+{
+  "date": "2026-03-21 00:00:02",
+  "guaranteed": [
+    "arXiv_AI",
+    "Nature",
+    "MIT_TechnologyReview"
+  ],
+  "chosen": [
+    "Wired",
+    "Quanta",
+    "Edge",
+    "arXiv Computer Science",
+    "\u56fd\u5bb6\u7edf\u8ba1\u5c40",
+    "Aeon",
+    "IMF \u6570\u636e"
+  ],
+  "all": [
+    "Nature",
+    "arXiv Computer Science",
+    "\u56fd\u5bb6\u7edf\u8ba1\u5c40",
+    "MIT_TechnologyReview",
+    "Edge",
+    "Wired",
+    "IMF \u6570\u636e",
+    "arXiv_AI",
+    "Quanta",
+    "Aeon"
+  ]
+}

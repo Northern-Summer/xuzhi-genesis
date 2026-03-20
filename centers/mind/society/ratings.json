@@ -21,7 +21,7 @@
       ],
       "department": "engineering",
       "capability": 3,
-      "last_active": "2026-03-20T21:20:04.577171",
+      "last_active": "2026-03-21T00:00:01.983631",
       "credit": 15,
       "quota_share": 30.0
     },
@@ -96,7 +96,7 @@
       ],
       "department": "engineering",
       "capability": 4,
-      "last_active": "2026-03-20T23:30:01.687084",
+      "last_active": "2026-03-20T23:50:02.242686",
       "credit": 10,
       "quota_share": 30.0
     }

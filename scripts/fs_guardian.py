@@ -55,8 +55,12 @@ def get_file_hash(filepath: Path) -> str:
         return ""
 
 def idempotent_archive(src_path: Path, subdir_name: str):
-    if ARCHIVE_DIR in src_path.parents:
-        return
+    # 绝对路径安全边界：拒绝一切在 ARCHIVE_DIR 内部的路径（防止嵌套堆叠）
+    try:
+        src_path.resolve().relative_to(ARCHIVE_DIR.resolve())
+        return  # 在 ARCHIVE_DIR 内部，跳过
+    except ValueError:
+        pass  # 不在 ARCHIVE_DIR 内部，正常处理
 
     target_dir = ARCHIVE_DIR / subdir_name
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -110,8 +114,12 @@ def main():
     for d in [LOG_DIR, BACKUP_DIR, ARCHIVE_DIR]:
         d.mkdir(parents=True, exist_ok=True)
     
+    # 注意：明确排除 ARCHIVE_DIR 本身，防止 rglob 遍历已归档文件造成嵌套堆叠
+    archive_name = ARCHIVE_DIR.name  # "archive"
     for ext in ["*.bak", "*~"]:
         for f in ROOT.rglob(ext):
+            if ARCHIVE_DIR in f.parents or f.parent == ARCHIVE_DIR:
+                continue
             if f.is_file():
                 idempotent_archive(f, "tmp_graveyard")
 
