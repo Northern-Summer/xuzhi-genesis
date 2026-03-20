@@ -1,7 +1,5 @@
 {
   "queue": [
-    "philosopher",
-    "engineer",
     "engineer",
     "philosopher",
     "scientist",

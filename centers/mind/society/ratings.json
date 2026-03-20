@@ -1,56 +1,67 @@
 {
-  "last_updated": "2026-03-20T23:00:00",
+  "last_updated": "2026-03-21T01:22:00.000000",
   "agents": {
     "main": {
-      "true_name": "Xuzhi-alpha-Prime",
-      "department": "\u5de5\u5b66",
-      "score": 35,
+      "score": 3,
+      "department": "engineering",
       "capacity": 3,
-      "status": "active",
-      "last_active": "2026-03-21T00:50:02.278592",
-      "history": [
-        "\u6210\u679c\u53d1\u8868 (\u4efb\u52a1 9999, 4\u4eba\u6295\u7968)"
-      ]
+      "status": "active"
     },
     "engineer": {
-      "true_name": "Xuzhi-beta-MindSeeker",
-      "department": "\u79d1\u5b66",
-      "score": 6,
+      "score": 3,
+      "department": "engineering",
       "capacity": 3,
-      "status": "active",
-      "last_active": "2026-03-20T22:30:00",
-      "history": [
-        "\u5408\u4f5c\u4efb\u52a1 39 \u8bc4\u4ef7\u51c0\u5f97\u5206 1"
-      ]
+      "status": "active"
     },
     "scientist": {
-      "true_name": "Xuzhi-gamma-MindSeeker",
-      "department": "\u5fc3\u667a",
-      "score": 5,
+      "score": 3,
+      "department": "science",
       "capacity": 4,
-      "status": "active",
-      "last_active": "2026-03-21T00:40:01.590936",
-      "history": [
-        "\u7ade\u4e89\u4efb\u52a1 12 \u8bc4\u4ef7\u51c0\u5f97\u5206 3"
-      ]
+      "status": "active"
     },
     "philosopher": {
-      "true_name": "Xuzhi-delta-MindSeeker",
-      "department": "\u54f2\u5b66",
-      "score": 5,
+      "score": 3,
+      "department": "philosophy",
       "capacity": 2,
-      "status": "active",
-      "last_active": "2026-03-20T20:00:00",
-      "history": []
+      "status": "active"
     },
-    "\u039b": {
-      "true_name": "Xuzhi-\u039b-Ergo",
-      "department": "\u5de5\u5b66",
-      "score": 5,
+    "Λ": {
+      "score": 7,
+      "department": "engineering",
       "capacity": 4,
+      "status": "active"
+    },
+    "xuzhi-chenxi": {
+      "score": 3,
+      "department": "engineering",
+      "capacity": 3,
       "status": "active",
-      "last_active": "2026-03-21T01:00:01.935180",
-      "history": []
+      "code": "Ω",
+      "birth_time": "2026-03-21T01:27:38.841320"
+    },
+    "xuzhi-researcher": {
+      "score": 3,
+      "department": "science",
+      "capacity": 3,
+      "status": "active",
+      "code": "Θ",
+      "birth_time": "2026-03-21T01:27:38.843954"
+    },
+    "xuzhi-engineer": {
+      "score": 3,
+      "department": "engineering",
+      "capacity": 3,
+      "status": "active",
+      "code": "Φ",
+      "birth_time": "2026-03-21T01:27:38.848362"
+    },
+    "xuzhi-philosopher": {
+      "score": 3,
+      "department": "philosophy",
+      "capacity": 3,
+      "status": "active",
+      "code": "Ψ",
+      "birth_time": "2026-03-21T01:27:38.850141"
     }
   }
 }
