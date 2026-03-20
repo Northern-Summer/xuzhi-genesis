@@ -36,12 +36,58 @@ def enforce_ownership(path: Path):
     for p in path.rglob("*"):
         os.chown(str(p), SYS_USER_UID, SYS_USER_GID)
 
+# 需要保护的目录（只读，555）
+PROTECTED_DIRS = [
+    ROOT / "centers",
+    ROOT / "centers" / "engineering",
+    ROOT / "centers" / "intelligence",
+    ROOT / "centers" / "mind",
+    ROOT / "centers" / "task",
+]
+# 需要运行时写入的目录（775）
+WRITABLE_DIRS = [
+    ROOT / "centers" / "engineering" / "crown",
+    ROOT / "centers" / "mind" / "society",
+    ROOT / "centers" / "mind" / "quotas",
+    ROOT / "centers" / "intelligence" / "knowledge",
+    ROOT / "centers" / "intelligence" / "seeds",
+    ROOT / "centers" / "intelligence" / "knowledge_market",
+    ROOT / "centers" / "intelligence" / "archive",
+    ROOT / "centers" / "mind" / "parliament",
+]
+
+def enforce_permissions():
+    """检测并修正权限漂移——三层防御 L2"""
+    drift_count = 0
+    for d in PROTECTED_DIRS:
+        if not d.exists():
+            continue
+        mode = d.stat().st_mode & 0o777
+        if mode != 0o555:
+            os.chmod(str(d), 0o555)
+            log(f"[PERM] 权限漂移修正: {d.relative_to(ROOT)} {oct(mode)}→0o555")
+            drift_count += 1
+    for d in WRITABLE_DIRS:
+        if not d.exists():
+            continue
+        mode = d.stat().st_mode & 0o777
+        if mode != 0o775:
+            os.chmod(str(d), 0o775)
+            log(f"[PERM] 权限漂移修正: {d.relative_to(ROOT)} {oct(mode)}→0o775")
+            drift_count += 1
+    if drift_count == 0:
+        log("[PERM] 权限拓扑完整，无漂移")
+    else:
+        log(f"[PERM] 共修正 {drift_count} 处权限漂移")
+    return drift_count
+
+
 def log(msg):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_file = LOG_DIR / "fs_guardian.log"
     log_file.parent.mkdir(parents=True, exist_ok=True)
     with open(log_file, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] {msg}\n")
+        f.write(f"[[{timestamp}]] {msg}\n")
     os.chown(str(log_file), SYS_USER_UID, SYS_USER_GID)
 
 def get_file_hash(filepath: Path) -> str:
@@ -142,6 +188,7 @@ def main():
             log(f"[CLEANUP] 湮灭死链: {f}")
 
     enforce_ownership(ROOT)
+    enforce_permissions()  # L2: 权限漂移检测与自愈
     log("=== 物理拓扑检查完成 ===")
 
 if __name__ == "__main__":
