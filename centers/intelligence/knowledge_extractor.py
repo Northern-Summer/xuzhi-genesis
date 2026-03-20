@@ -17,7 +17,48 @@ migrate_knowledge_db.migrate()
 
 DB_PATH = Path.home() / "xuzhi_genesis" / "centers" / "intelligence" / "knowledge" / "knowledge.db"
 SEEDS_DIR = Path.home() / "xuzhi_genesis" / "centers" / "intelligence" / "seeds"
-EXCLUDE_SUBDIRS = {"library", "meta", "archive"}  # 排除文学/元数据/归档目录
+EXCLUDE_SUBDIRS = {"library", "meta", "archive"}
+
+# ──────────────────────────────────────────────────────────────
+# 图书馆门禁：基于元数据的启发式过滤
+# 知识库只进"结构化知识"，不进"叙述性文本"
+# ──────────────────────────────────────────────────────────────
+
+L1_WHITELIST_PATTERNS = [
+    re.compile(r"arxiv\.org", re.I),
+    re.compile(r"nature\.com|nature\.org", re.I),
+    re.compile(r"science\.org", re.I),
+    re.compile(r"biorxiv\.org|medrxiv\.org", re.I),
+    re.compile(r"openai\.com|anthropic\.com|deepmind\.com", re.I),
+    re.compile(r"huggingface\.co", re.I),
+    re.compile(r"wikipedia\.org|wikidata\.org", re.I),
+    re.compile(r"nist\.gov|iso\.org|ieee\.org|w3\.org", re.I),
+    re.compile(r"technologyreview\.com|quantamagazine\.org", re.I),
+    re.compile(r"academic\.oup\.com|pnas\.org|plos\.org", re.I),
+    re.compile(r"github\.com/.*/(blob|tree)/", re.I),
+    re.compile(r"cnki\.net|wanfangdata\.com", re.I),
+]
+
+L1_BLACKLIST_PATTERNS = [
+    re.compile(r"z-library|books\.lib|ebook|pdfdrive", re.I),
+    re.compile(r"小说|文学|散文|诗歌|剧本", re.I),
+    re.compile(r"克里希那穆提|古尔纳|村上春树", re.I),
+    re.compile(r"哲学|灵修|觉醒|开悟", re.I),
+    re.compile(r"SAN.*分享书籍|地址\.txt", re.I),
+    re.compile(r"知乎|豆瓣|公众号|个人博客", re.I),
+]
+
+def is_library_allowed(source_meta: str) -> bool:
+    """基于source元数据决定是否允许library文件进入知识处理流程"""
+    for p in L1_BLACKLIST_PATTERNS:
+        if p.search(source_meta):
+            return False
+    for p in L1_WHITELIST_PATTERNS:
+        if p.search(source_meta):
+            return True
+    return False  # 默认拒绝不明来源
+
+  # 排除文学/元数据/归档目录
 PROCESSED_FILE = Path.home() / "xuzhi_genesis" / "centers" / "intelligence" / "knowledge" / "processed_seeds.txt"
 
 # 因果关键词（中文和英文）
