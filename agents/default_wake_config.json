@@ -1,0 +1,56 @@
+{
+  "wake_strategies": {
+    "fixed_time": {
+      "description": "固定时间唤醒策略",
+      "config_template": {
+        "wake_times": ["09:00", "14:00", "20:00"],
+        "energy_threshold": 0.3,
+        "strictness": 0.8
+      },
+      "suitable_for": ["工学部", "科学部", "需要稳定输出的部门"]
+    },
+    "task_driven": {
+      "description": "任务驱动唤醒策略",
+      "config_template": {
+        "min_tasks": 1,
+        "task_priority_threshold": 3,
+        "energy_threshold": 0.2,
+        "strictness": 0.9
+      },
+      "suitable_for": ["心智中心", "哲学部", "按需工作的部门"]
+    },
+    "adaptive": {
+      "description": "自适应唤醒策略",
+      "config_template": {
+        "base_probability": 0.4,
+        "score_weight": 0.3,
+        "capability_weight": 0.3,
+        "energy_weight": 0.2,
+        "credit_weight": 0.2,
+        "strictness": 0.6
+      },
+      "suitable_for": ["所有部门", "通用型智能体"]
+    },
+    "energy_saving": {
+      "description": "节能模式",
+      "config_template": {
+        "max_wakeups_per_day": 2,
+        "energy_threshold": 0.1,
+        "strictness": 0.95
+      },
+      "suitable_for": ["配额紧张时", "非关键部门"]
+    }
+  },
+  "system_defaults": {
+    "emergency_wakeup_threshold": 0,      # 活跃智能体数量为0时触发紧急唤醒
+    "health_check_interval_hours": 24,    # 健康检查间隔
+    "min_system_activity": 0.1,           # 最低系统活跃度
+    "quota_alert_threshold": 0.9          # 配额告警阈值
+  },
+  "notes": [
+    "智能体应该根据自己的工作模式和部门需求选择或调整唤醒策略",
+    "策略可以组合使用（例如：固定时间为主，任务驱动为辅）",
+    "每个智能体可以在自己的私有领地创建 wake_config.json 覆盖默认设置",
+    "Cron只负责基础设施健康检查，不负责具体智能体唤醒"
+  ]
+}

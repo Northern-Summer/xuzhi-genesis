@@ -69,7 +69,7 @@ SEEDS_DIR = os.path.join(INTEL_DIR, "seeds")
 KNOWLEDGE_DIR = os.path.join(INTEL_DIR, "knowledge")
 DB_PATH = os.path.join(KNOWLEDGE_DIR, "knowledge.db")
 PROCESSED_LOG = os.path.join(KNOWLEDGE_DIR, "processed_seeds.txt")
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = "http://localhost:11435/api/generate"
 OLLAMA_MODEL = "qwen3.5:4b"  # 修正为正确的模型
 
 # 种子类型定义（与蓝图一致）

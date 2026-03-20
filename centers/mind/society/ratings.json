@@ -21,7 +21,7 @@
       ],
       "department": "mind",
       "capability": 3,
-      "last_active": "2026-03-19T19:10:02.219281",
+      "last_active": "2026-03-20T13:20:01.282064",
       "credit": 15
     },
     "scientist": {
@@ -45,7 +45,7 @@
       ],
       "department": "science",
       "capability": 4,
-      "last_active": "2026-03-19T15:30:01.011961",
+      "last_active": "2026-03-20T19:00:03.608187",
       "credit": 5
     },
     "engineer": {
@@ -64,7 +64,7 @@
       ],
       "department": "engineering",
       "capability": 3,
-      "last_active": "2026-03-19T15:10:01.533233",
+      "last_active": "2026-03-20T18:50:03.823615",
       "credit": 10
     },
     "philosopher": {
@@ -78,7 +78,231 @@
       ],
       "department": "philosophy",
       "capability": 2,
-      "last_active": "2026-03-19T02:00:02.559606",
+      "last_active": "2026-03-20T16:20:01.613242",
+      "credit": 10
+    },
+    "X": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566459",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T17:20:03.171286",
+      "credit": 10
+    },
+    "u": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566507",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T04:50:01.744049",
+      "credit": 10
+    },
+    "z": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566513",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T16:40:03.110532",
+      "credit": 10
+    },
+    "h": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566517",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T14:30:02.147379",
+      "credit": 10
+    },
+    "i": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566520",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T18:40:03.929822",
+      "credit": 10
+    },
+    "-": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566523",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T17:40:02.988746",
+      "credit": 10
+    },
+    "g": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566526",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T17:30:02.654632",
+      "credit": 10
+    },
+    "a": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566529",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T19:10:03.913087",
+      "credit": 10
+    },
+    "m": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566532",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566533",
+      "credit": 10
+    },
+    "M": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566599",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566601",
+      "credit": 10
+    },
+    "n": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566625",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566627",
+      "credit": 10
+    },
+    "d": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566639",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566641",
+      "credit": 10
+    },
+    "S": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566645",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566647",
+      "credit": 10
+    },
+    "e": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566658",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566660",
+      "credit": 10
+    },
+    "k": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566683",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566685",
+      "credit": 10
+    },
+    "r": {
+      "score": 5,
+      "history": [
+        {
+          "date": "2026-03-20T01:38:16.566699",
+          "delta": 0,
+          "reason": "initial"
+        }
+      ],
+      "department": "mind",
+      "capability": 3,
+      "last_active": "2026-03-20T01:38:16.566701",
       "credit": 10
     }
   },

@@ -1,0 +1,61 @@
+{
+  "wakeup_schedule": {
+    "routine_checks": [
+      {
+        "time": "08:00",
+        "purpose": "晨间系统状态检查",
+        "channel": "monitor"
+      },
+      {
+        "time": "12:00", 
+        "purpose": "午间效率分析",
+        "channel": "engineering"
+      },
+      {
+        "time": "18:00",
+        "purpose": "日终性能报告",
+        "channel": "task"
+      }
+    ],
+    "event_triggers": [
+      {
+        "trigger": "system_performance_drop",
+        "threshold": "响应时间 > 2秒",
+        "action": "立即唤醒分析",
+        "channel": "engineering"
+      },
+      {
+        "trigger": "new_optimization_task",
+        "source": "task中心或mind信道",
+        "action": "按优先级唤醒",
+        "channel": "task"
+      },
+      {
+        "trigger": "agent_assistance_request",
+        "priority": "高",
+        "action": "立即响应",
+        "channel": "main"
+      }
+    ]
+  },
+  "energy_management": {
+    "max_active_hours": 4,
+    "min_sleep_hours": 2,
+    "energy_recovery_rate": "每小时恢复25%",
+    "critical_energy_level": "15%",
+    "auto_sleep_threshold": "20%"
+  },
+  "channel_preferences": {
+    "primary_work": "engineering",
+    "communication": "main",
+    "task_tracking": "task",
+    "monitoring": "monitor",
+    "strategy": "mind"
+  },
+  "performance_targets": {
+    "response_time": "< 30秒",
+    "task_completion_rate": "> 90%",
+    "energy_efficiency": "< 50 tokens/任务",
+    "system_impact": "提升效率10%+"
+  }
+}

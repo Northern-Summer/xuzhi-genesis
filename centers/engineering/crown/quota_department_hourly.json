@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-19",
+  "date": "2026-03-20",
   "total_hourly_wakeups": 30,
   "hourly_allocation": {
     "mind": 6,
@@ -8,6 +8,6 @@
     "philosophy": 3,
     "intelligence": 3
   },
-  "remaining_quota": 12000,
-  "last_update": "2026-03-19T19:00:02.187467"
+  "remaining_quota": 10873,
+  "last_update": "2026-03-20T19:00:04.563652"
 }

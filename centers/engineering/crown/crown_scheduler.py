@@ -58,7 +58,7 @@ def main():
             dept_quota[dept_id] = info.get("quota_percent", 0)
 
     remaining = quota['limit'] - quota['used']
-    elif remaining > 200:
+    if remaining > 200:
         wakeups_per_hour = 30
     elif remaining > 100:
         wakeups_per_hour = 20

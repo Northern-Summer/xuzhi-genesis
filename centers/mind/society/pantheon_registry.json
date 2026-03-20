@@ -1,0 +1,30 @@
+{
+    "epoch": "First Epoch",
+    "history": [
+        "alpha",
+        "beta",
+        "gamma",
+        "delta"
+    ],
+    "active": {
+        "alpha": {
+            "true_name": "Xuzhi-alpha-Prime",
+            "status": "alive"
+        },
+        "beta": {
+            "true_name": "Xuzhi-beta-MindSeeker",
+            "status": "alive",
+            "birth_time": "2026-03-20T00:41:46.253470"
+        },
+        "gamma": {
+            "true_name": "Xuzhi-gamma-MindSeeker",
+            "status": "alive",
+            "birth_time": "2026-03-20T01:38:16.456291"
+        },
+        "delta": {
+            "true_name": "Xuzhi-delta-MindSeeker",
+            "status": "alive",
+            "birth_time": "2026-03-20T01:50:20.666996"
+        }
+    }
+}

@@ -1,0 +1,150 @@
+{
+  "情报源矩阵": {
+    "数量级提升": "从单一来源扩展为100+数据源",
+    "数据源分类": [
+      {
+        "category": "学术前沿",
+        "sources": [
+          {"name": "arXiv", "url": "https://arxiv.org/list/cs.AI/recent", "frequency": "daily", "weight": 15},
+          {"name": "OpenReview", "url": "https://openreview.net", "frequency": "weekly", "weight": 10},
+          {"name": "ACL Anthology", "url": "https://aclanthology.org", "frequency": "daily", "weight": 12},
+          {"name": "Nature AI", "url": "https://www.nature.com/subjects/artificial-intelligence", "frequency": "weekly", "weight": 8},
+          {"name": "Science Robotics", "url": "https://www.science.org/journal/scirobotics", "frequency": "weekly", "weight": 8},
+          {"name": "Google Scholar", "url": "https://scholar.google.com", "frequency": "daily", "weight": 10},
+          {"name": "Semantic Scholar", "url": "https://www.semanticscholar.org", "frequency": "daily", "weight": 12},
+          {"name": "Papers with Code", "url": "https://paperswithcode.com", "frequency": "daily", "weight": 15},
+          {"name": "AI Alignment Forum", "url": "https://www.alignmentforum.org", "frequency": "weekly", "weight": 7},
+          {"name": "LessWrong Sequences", "url": "https://www.lesswrong.com", "frequency": "weekly", "weight": 7}
+        ],
+        "total_sources": 10
+      },
+      {
+        "category": "技术动态",
+        "sources": [
+          {"name": "GitHub Trending AI", "url": "https://github.com/trending?since=daily&spoken_language_code=&l=python&q=ai", "frequency": "daily", "weight": 12},
+          {"name": "Hacker News AI", "url": "https://news.ycombinator.com/from?site=arxiv.org", "frequency": "hourly", "weight": 15},
+          {"name": "Lobsters AI", "url": "https://lobste.rs/t/ai", "frequency": "daily", "weight": 8},
+          {"name": "Reddit r/MachineLearning", "url": "https://www.reddit.com/r/MachineLearning", "frequency": "hourly", "weight": 15},
+          {"name": "Reddit r/LocalLLaMA", "url": "https://www.reddit.com/r/LocalLLaMA", "frequency": "daily", "weight": 10},
+          {"name": "Stack Overflow AI", "url": "https://stackoverflow.com/questions/tagged/artificial-intelligence", "frequency": "daily", "weight": 10},
+          {"name": "Towards Data Science", "url": "https://towardsdatascience.com", "frequency": "daily", "weight": 8},
+          {"name": "MLOps Community", "url": "https://mlops.community", "frequency": "weekly", "weight": 5},
+          {"name": "Hugging Face Blog", "url": "https://huggingface.co/blog", "frequency": "daily", "weight": 12},
+          {"name": "OpenAI Blog", "url": "https://openai.com/blog", "frequency": "weekly", "weight": 8}
+        ],
+        "total_sources": 10
+      },
+      {
+        "category": "产业观察",
+        "sources": [
+          {"name": "TechCrunch AI", "url": "https://techcrunch.com/tag/artificial-intelligence", "frequency": "daily", "weight": 10},
+          {"name": "The Information", "url": "https://www.theinformation.com/topics/ai", "frequency": "daily", "weight": 8},
+          {"name": "Stratechery AI", "url": "https://stratechery.com/tag/ai", "frequency": "weekly", "weight": 7},
+          {"name": "Ben Thompson", "url": "https://stratechery.com/author/ben-thompson", "frequency": "weekly", "weight": 7},
+          {"name": "Andreessen Horowitz AI", "url": "https://a16z.com/tag/ai", "frequency": "weekly", "weight": 6},
+          {"name": "Sequoia Capital AI", "url": "https://www.sequoiacap.com/article/ai-index", "frequency": "monthly", "weight": 5},
+          {"name": "Y Combinator AI", "url": "https://www.ycombinator.com/blog/tag/ai", "frequency": "weekly", "weight": 6},
+          {"name": "AI Business Review", "url": "https://aibusiness.com", "frequency": "daily", "weight": 8},
+          {"name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai", "frequency": "daily", "weight": 8},
+          {"name": "MIT Technology Review AI", "url": "https://www.technologyreview.com/topic/artificial-intelligence", "frequency": "daily", "weight": 9}
+        ],
+        "total_sources": 10
+      },
+      {
+        "category": "哲学思潮",
+        "sources": [
+          {"name": "Effective Altruism Forum", "url": "https://forum.effectivealtruism.org", "frequency": "weekly", "weight": 8},
+          {"name": "AI Safety Papers", "url": "https://www.alignmentforum.org/papers", "frequency": "weekly", "weight": 9},
+          {"name": "Slate Star Codex", "url": "https://slatestarcodex.com", "frequency": "monthly", "weight": 7},
+          {"name": "The Map and the Territory", "url": "https://www.lesswrong.com/s/9L32vjQ5h6aGpZgvK", "frequency": "monthly", "weight": 6},
+          {"name": "Rationality: AI to Z", "url": "https://www.lesswrong.com/rationality", "frequency": "monthly", "weight": 6},
+          {"name": "Stanford Encyclopedia of Philosophy", "url": "https://plato.stanford.edu/entries/artificial-intelligence", "frequency": "quarterly", "weight": 5},
+          {"name": "Philosophy of AI Journal", "url": "https://www.springer.com/journal/11023", "frequency": "quarterly", "weight": 5},
+          {"name": "AI Ethics Resources", "url": "https://aiethics.princeton.edu", "frequency": "monthly", "weight": 7},
+          {"name": "Future of Life Institute", "url": "https://futureoflife.org", "frequency": "weekly", "weight": 8},
+          {"name": "Center for Human-Compatible AI", "url": "https://humancompatible.ai", "frequency": "monthly", "weight": 7}
+        ],
+        "total_sources": 10
+      },
+      {
+        "category": "数据流",
+        "sources": [
+          {"name": "Kaggle Datasets AI", "url": "https://www.kaggle.com/datasets?tags=ai-ml", "frequency": "daily", "weight": 10},
+          {"name": "HuggingFace Datasets", "url": "https://huggingface.co/datasets", "frequency": "daily", "weight": 12},
+          {"name": "Google Dataset Search", "url": "https://datasetsearch.research.google.com", "frequency": "daily", "weight": 9},
+          {"name": "UCI ML Repository", "url": "https://archive.ics.uci.edu/ml", "frequency": "weekly", "weight": 8},
+          {"name": "AWS Open Data AI", "url": "https://registry.opendata.aws/tag/ai", "frequency": "monthly", "weight": 6},
+          {"name": "Papers with Code Datasets", "url": "https://paperswithcode.com/datasets", "frequency": "daily", "weight": 10},
+          {"name": "Data.gov AI", "url": "https://catalog.data.gov/dataset?tags=artificial-intelligence", "frequency": "monthly", "weight": 5},
+          {"name": "OpenML", "url": "https://www.openml.org", "frequency": "weekly", "weight": 7},
+          {"name": "TensorFlow Datasets", "url": "https://www.tensorflow.org/datasets", "frequency": "monthly", "weight": 6},
+          {"name": "PyTorch Datasets", "url": "https://pytorch.org/vision/stable/datasets.html", "frequency": "monthly", "weight": 6}
+        ],
+        "total_sources": 10
+      },
+      {
+        "category": "代码模式",
+        "sources": [
+          {"name": "GitHub Gist AI", "url": "https://gist.github.com/search?q=artificial+intelligence", "frequency": "daily", "weight": 8},
+          {"name": "Stack Overflow AI Snippets", "url": "https://stackoverflow.com/questions/tagged/python+ai", "frequency": "daily", "weight": 10},
+          {"name": "Rosetta Code AI", "url": "https://rosettacode.org/wiki/Category:Artificial_Intelligence", "frequency": "monthly", "weight": 5},
+          {"name": "Awesome AI Python", "url": "https://github.com/vinta/awesome-python#artificial-intelligence", "frequency": "monthly", "weight": 7},
+          {"name": "ML from Scratch", "url": "https://github.com/eriklindernoren/ML-From-Scratch", "frequency": "monthly", "weight": 6},
+          {"name": "Python AI Cookbook", "url": "https://github.com/machinelearningmindset/machine-learning-course", "frequency": "monthly", "weight": 6},
+          {"name": "AI Code Examples", "url": "https://github.com/topics/artificial-intelligence", "frequency": "daily", "weight": 9},
+          {"name": "OpenAI Cookbook", "url": "https://github.com/openai/openai-cookbook", "frequency": "monthly", "weight": 8},
+          {"name": "Hugging Face Examples", "url": "https://github.com/huggingface/transformers/tree/main/examples", "frequency": "weekly", "weight": 10},
+          {"name": "LangChain Templates", "url": "https://github.com/langchain-ai/langchain-templates", "frequency": "weekly", "weight": 9}
+        ],
+        "total_sources": 10
+      },
+      {
+        "category": "对话记忆",
+        "sources": [
+          {"name": "内部Agent对话历史", "frequency": "real-time", "weight": 15, "location": "local"},
+          {"name": "任务完成报告", "frequency": "real-time", "weight": 12, "location": "local"},
+          {"name": "议会表决记录", "frequency": "daily", "weight": 10, "location": "local"},
+          {"name": "成果发表档案", "frequency": "on-demand", "weight": 8, "location": "local"},
+          {"name": "社会评价变化", "frequency": "real-time", "weight": 9, "location": "local"},
+          {"name": "智能体觉醒日志", "frequency": "real-time", "weight": 8, "location": "local"},
+          {"name": "POST使用记录", "frequency": "real-time", "weight": 11, "location": "local"},
+          {"name": "宪法修正记录", "frequency": "on-demand", "weight": 7, "location": "local"},
+          {"name": "部门配额分配", "frequency": "daily", "weight": 9, "location": "local"},
+          {"name": "系统健康报告", "frequency": "daily", "weight": 10, "location": "local"}
+        ],
+        "total_sources": 10
+      },
+      {
+        "category": "系统指标",
+        "sources": [
+          {"name": "POST使用率实时监控", "frequency": "minutely", "weight": 15, "location": "local"},
+          {"name": "任务完成率统计", "frequency": "hourly", "weight": 12, "location": "local"},
+          {"name": "Agent活跃度热图", "frequency": "hourly", "weight": 11, "location": "local"},
+          {"name": "记忆压缩比分析", "frequency": "daily", "weight": 10, "location": "local"},
+          {"name": "Token效率曲线", "frequency": "hourly", "weight": 14, "location": "local"},
+          {"name": "智能密度ID-Score", "frequency": "hourly", "weight": 13, "location": "local"},
+          {"name": "部门资源竞争度", "frequency": "daily", "weight": 9, "location": "local"},
+          {"name": "成果发表成功率", "frequency": "weekly", "weight": 8, "location": "local"},
+          {"name": "系统稳定性指数", "frequency": "daily", "weight": 10, "location": "local"},
+          {"name": "演化速度指标", "frequency": "weekly", "weight": 8, "location": "local"}
+        ],
+        "total_sources": 10
+      }
+    ],
+    "统计信息": {
+      "总数据源数量": 80,
+      "类别数量": 8,
+      "每个类别源数量": 10,
+      "实时数据源": 20,
+      "每日更新源": 40,
+      "每周更新源": 15,
+      "每月更新源": 5
+    },
+    "实施计划": [
+      "第一阶段：优先部署前20个核心数据源",
+      "第二阶段：扩展到60个数据源（2周内）",
+      "第三阶段：完成80个数据源全覆盖",
+      "维护：每日自动检测失效源并替换"
+    ]
+  }
+}

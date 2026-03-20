@@ -14,7 +14,17 @@ from datetime import datetime
 SECRETS_FILE = Path.home() / ".openclaw" / "secrets.json"
 QUOTA_FILE = Path.home() / ".openclaw" / "centers" / "engineering" / "crown" / "quota_usage.json"
 CRON_FILE = Path.home() / ".openclaw" / "cron" / "dynamic_crontab.txt"
-API_URL = "https://cloud.infini-ai.com/maas/coding/usage"  # 确保与curl一致
+# 动态读取 API 配置 (v7 解耦)
+API_CONFIG_FILE = Path.home() / ".openclaw" / "config" / "api_config.json"
+API_URL = "https://cloud.infini-ai.com/maas/coding/usage"  # 默认回退
+if API_CONFIG_FILE.exists():
+    try:
+        with open(API_CONFIG_FILE) as f:
+            _api_cfg = json.load(f)
+            API_URL = _api_cfg.get("accelerator_api_url", API_URL)
+    except Exception as e:
+        print(f"⚠️ 读取 api_config.json 失败: {e}")
+  # 确保与curl一致
 
 # 新增：部门配额输出文件
 DEPT_HOURLY_FILE = Path.home() / ".openclaw" / "centers" / "engineering" / "crown" / "quota_department_hourly.json"

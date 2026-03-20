@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 KNOWLEDGE_DB = Path.home() / "xuzhi_genesis" / "centers" / "intelligence" / "knowledge" / "knowledge.db"
 TASKS_JSON = Path.home() / ".openclaw" / "tasks" / "tasks.json"
 LOG_FILE = Path.home() / "xuzhi_genesis" / "logs" / "counterfactual.log"
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = "http://localhost:11435/api/generate"
 MODEL = "qwen3.5:4b"
 
 def log(msg):

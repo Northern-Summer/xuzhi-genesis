@@ -1,0 +1,28 @@
+{
+  "name": "智能密度监控与优化",
+  "description": "基于autoresearch方法的智能密度动态监控，每30分钟评估并优化token效率",
+  "schedule": {
+    "kind": "every",
+    "everyMs": 1800000,
+    "anchorMs": 1710940000
+  },
+  "payload": {
+    "kind": "agentTurn",
+    "message": "执行智能密度检查：1. 分析最近30分钟的token使用效率 2. 计算当前ID-Score 3. 识别优化机会 4. 如有重大发现(ID-Score变化>20%或值>150)则生成报告 5. 应用优化建议",
+    "model": "minimax-m2.7",
+    "thinking": "brief",
+    "timeoutSeconds": 120
+  },
+  "delivery": {
+    "mode": "announce",
+    "bestEffort": true
+  },
+  "sessionTarget": "isolated",
+  "enabled": true,
+  "metadata": {
+    "framework": "智能密度基准框架",
+    "version": "1.0.0",
+    "created": "2026-03-20T03:27:00Z",
+    "creator": "Echo (Xuzhi Project)"
+  }
+}
