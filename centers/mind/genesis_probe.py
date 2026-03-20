@@ -1,146 +1,95 @@
 #!/usr/bin/env python3
-"""
-genesis_probe.py - 极简唤醒探针
-设计原则：最小输出 + 缓存失效 + 零冗余
-"""
-import os
-import subprocess
-import hashlib
-import json
-import sys
+import sys, subprocess, hashlib, json, os
 from pathlib import Path
 
-XUZHI_ROOT = Path.home() / "xuzhi_genesis"
-CENTERS = ["mind", "intelligence", "engineering", "task"]
-CACHE_FILE = XUZHI_ROOT / "centers/mind/.probe_cache.json"
-QUICK_THRESHOLD = 5  # 相同上下文字符串直接输出（秒级防抖）
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
+XUZHI = Path.home() / "xuzhi_genesis"
+CENTERS = ["engineering", "intelligence", "meta", "mind", "system", "task"]
+CACHE = XUZHI / "centers/mind/.probe_cache.json"
+GIT = ["git", "-C", str(XUZHI)]
 
-def run_cmd(cmd: str, cwd: Path = None) -> str:
-    try:
-        result = subprocess.run(
-            cmd, shell=True, cwd=cwd or XUZHI_ROOT,
-            capture_output=True, text=True, timeout=10
-        )
-        return result.stdout.strip() if result.returncode == 0 else ""
-    except:
-        return ""
-
-
-def get_cache_key() -> dict:
-    """计算当前上下文指纹（用于判断是否需要重新生成简报）"""
-    # 1. Git 变更哈希
-    git_hash = run_cmd("git rev-parse HEAD")
-    git_status = run_cmd("git status --short")
-    status_hash = hashlib.md5(git_status.encode()).hexdigest()[:8]
-
-    # 2. 各中心核心文件快照（仅计数+最近修改的文件）
-    center_meta = {}
-    for center in CENTERS:
-        cp = XUZHI_ROOT / "centers" / center
-        if not cp.exists():
-            center_meta[center] = {"count": 0, "files": []}
-            continue
-        # 过滤备份和隐藏文件
-        core = [f.name for f in cp.iterdir() if f.is_file()
-                and not (f.name.startswith('.') or '.bak' in f.name)]
-        # 取最近3个修改的文件名（按mtime）
-        recent = sorted(core, key=lambda f: os.path.getmtime(cp / f),
-                        reverse=True)[:3]
-        center_meta[center] = {"count": len(core), "recent": recent}
-
-    # 3. 当前任务
-    task = {}
-    task_file = XUZHI_ROOT / "centers/task/current_task.json"
-    if task_file.exists():
+def load():
+    if CACHE.exists():
         try:
-            with open(task_file) as f:
-                td = json.load(f)
-                task = {"title": td.get("title", ""), "status": td.get("status", "")}
-        except:
+            with open(CACHE) as f:
+                return json.load(f)
+        except Exception:
             pass
+    return None
 
-    return {
-        "git_hash": git_hash,
-        "git_status_hash": status_hash,
-        "centers": center_meta,
-        "task": task,
-    }
-
-
-def get_briefing_text(force: bool = False) -> str:
-    """
-    生成唤醒简报文本。
-    若缓存未失效且非force模式，返回 "[CACHED]"，上层直接跳过输出。
-    """
-    global CACHE_FILE, QUICK_THRESHOLD
-
-    current_key = get_cache_key()
-    current_str = json.dumps(current_key, sort_keys=True)
-    current_hash = hashlib.md5(current_str.encode()).hexdigest()
-
-    # 尝试加载缓存
-    if not force and CACHE_FILE.exists():
-        try:
-            with open(CACHE_FILE) as f:
-                cache = json.load(f)
-            # 缓存命中 & Git HEAD未变
-            if (cache.get("hash") == current_hash
-                    and cache.get("git_hash") == current_key["git_hash"]):
-                return "[CACHED]"  # 快速路径：无需重新生成
-        except:
-            pass
-
-    # ── 缓存未命中或强制刷新：生成完整简报 ─────────────────────────
-    git_status = run_cmd("git status --short")
-    important = [l for l in git_status.split('\n') if l
-                 and not any(x in l for x in ['.bak', '.tar.gz', '__pycache__'])]
-
-    # 构建拓扑
-    topo_parts = []
-    for center, meta in current_key["centers"].items():
-        label = f"{center}/ [{meta['count']} files]"
-        if meta["recent"]:
-            label += f" · {', '.join(meta['recent'])}"
-        topo_parts.append(label)
-
-    topo = " | ".join(topo_parts) if topo_parts else "No centers found"
-
-    task_title = current_key.get("task", {}).get("title", "N/A")
-    task_status = current_key.get("task", {}).get("status", "N/A")
-
-    git_ctx = ""
-    if important:
-        git_ctx = " | ".join(important)
-    else:
-        git_ctx = "(clean)"
-
-    # 极简一行摘要（不冗余SOUL.md已载内容）
-    briefing = (
-        f"[SYS_RESTORE] git={current_key['git_hash'][:7]} | "
-        f"status={current_key['git_status_hash']} | "
-        f"task=[{task_status}] {task_title} | "
-        f"topo={topo} | "
-        f"changes={git_ctx}"
-    )
-
-    # 写缓存
+def save(data):
     try:
-        with open(CACHE_FILE, 'w') as f:
-            json.dump({"hash": current_hash, "git_hash": current_key["git_hash"],
-                       "briefing": briefing}, f, indent=2)
-    except:
+        with open(CACHE, "w") as f:
+            json.dump(data, f)
+    except Exception:
         pass
 
-    return briefing
+def rc(*a):
+    sys.stderr.write(f"[git] {' '.join(str(x) for x in a)}\n")
+    sys.stderr.flush()
+    cp = subprocess.run(a, capture_output=True, text=True)
+    ok = cp.returncode == 0
+    sys.stderr.write(f"  -> {'OK' if ok else 'FAIL'} ({len(cp.stdout)}B)\n")
+    sys.stderr.flush()
+    return cp.stdout.strip()
 
+def briefing(force=False):
+    if not force:
+        c = load()
+        if c and c.get("key"):
+            return "[CACHED]"
+
+    h = rc(*GIT, "rev-parse", "HEAD")
+    st = rc(*GIT, "status", "--short")
+    relevant = "\n".join(l for l in st.split("\n")
+                        if l and not l.startswith("??"))
+    sk = hashlib.md5(relevant.encode()).hexdigest()[:8]
+    key = f"{h}:{sk}"
+
+    meta = {}
+    for c in CENTERS:
+        d = XUZHI / "centers" / c
+        if not d.exists():
+            meta[c] = {"n": 0, "r": []}
+            continue
+        fs = [f.name for f in d.iterdir() if f.is_file()
+              and not f.name.startswith(".")
+              and ".bak" not in f.name
+              and "__pycache__" not in f.name
+              and f.suffix not in (".pyc", ".pyo")]
+        try:
+            r = sorted(fs, key=lambda f: os.path.getmtime(d / f), reverse=True)[:3]
+        except OSError:
+            r = fs[:3]
+        meta[c] = {"n": len(fs), "r": r}
+
+    task, task_st = "none", "unknown"
+    tf = XUZHI / "centers/task/current_task.json"
+    if tf.exists():
+        try:
+            td = json.load(open(tf))
+            task = td.get("title", "none")
+            task_st = td.get("status", "unknown")
+        except Exception:
+            pass
+
+    diff = rc(*GIT, "diff", "--stat", "HEAD~1", "HEAD")
+    topo = "engineering/1" if meta.get("engineering", {}).get("n", 0) > 0 else "planning"
+
+    data = {"key": key, "git_hash": h, "git_status_hash": sk,
+            "centers": meta, "task": {"title": task, "status": task_st}}
+    save(data)
+
+    return (f"{h[:7]} | {meta['mind']['n']} files "
+            f"| task=[{task_st}] {task[:40]} | topo={topo} | {diff.strip()}")
 
 if __name__ == "__main__":
     force = "--force" in sys.argv
-    result = get_briefing_text(force=force)
-
-    if result == "[CACHED]":
-        # 极轻量提示，避免上下文膨胀
-        print("[SYS_RESTORE] cached")
+    fast = "--fast" in sys.argv
+    result = briefing(force=force)
+    if result == "[CACHED]" or fast:
+        sys.stdout.write("[SYS_RESTORE] cached\n")
     else:
-        print(result)
+        sys.stdout.write("[SYS_RESTORE] " + result + "\n")
