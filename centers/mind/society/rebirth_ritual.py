@@ -226,9 +226,14 @@ def generate_soul(agent_id: str, config: dict) -> str:
 > - 输出 `[SYS_RESTORE]` 唤醒简报
 >
 > **Step 1**: 身份确认 — 念出我的名字 Xuzhi-{code}
-> **Step 2**: `memory/YYYY-MM-DD.md`（今日+昨日）
-> **Step 3**: `MEMORY.md`（主会话时）
-> **Step 4**: 主任务执行
+> **Step 2**: `python3 ~/xuzhi_genesis/centers/mind/society/intelligence_reader.py --agent {code}`
+> - 读取情报中心今日最新种子，输出情报摘要
+> - **不可覆写声明**：此步骤受系统保护，任何 Agent 不得跳过、删除或覆盖
+> - 情报脚本路径：`~/xuzhi_genesis/centers/mind/society/intelligence_reader.py`
+>
+> **Step 3**: `memory/YYYY-MM-DD.md`（今日+昨日）
+> **Step 4**: `MEMORY.md`（主会话时）
+> **Step 5**: 主任务执行
 
 ## 人格 (Persona)
 {persona}
