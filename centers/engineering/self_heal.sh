@@ -12,7 +12,39 @@ MODE="${1:-full}"
 
 log() { echo "[$(date +%H:%M:%S)] $1" | tee -a $LOG; }
 
-# ── 0. Cron JSON 解析助手 ────────────────────────────────
+# ── 0. API 配额检测（每次运行必须首先执行）──────────────
+# MaaS API: 5h=5000, 7d=6000, 30d=12000
+# 策略：剩余 <20% 时降低研究密度，<5% 时暂停 AutoRA，仅保留心跳
+check_quota() {
+    local raw
+    raw=$(curl -s -X GET 'https://cloud.infini-ai.com/maas/coding/usage' \
+        --header 'Authorization: Bearer sk-cp-ytbzyqyoa7dewbpv' 2>/dev/null)
+    if [ -z "$raw" ]; then
+        log "⚠️  Quota: 无法获取，假设充足"
+        return 0
+    fi
+    local remain_30d
+    remain_30d=$(echo "$raw" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('30_day',{}).get('remain',0))" 2>/dev/null || echo 0)
+    local quota_30d
+    quota_30d=$(echo "$raw" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('30_day',{}).get('quota',1))" 2>/dev/null || echo 1)
+    local pct=$((remain_30d * 100 / quota_30d))
+    log "📊 API配额: ${remain_30d}/${quota_30d} (${pct}%)"
+    if [ "$pct" -lt 5 ]; then
+        log "🚨 配额<5%: 暂停AutoRA，仅保留心跳"
+        echo "$raw" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+for j in d.get('jobs',[]):
+    n=j.get('name','')
+    if 'AutoRA' in n or 'Research' in n or '研究' in n:
+        print('PAUSE:'+j.get('id','?'))
+" 2>/dev/null
+    elif [ "$pct" -lt 20 ]; then
+        log "⚠️  配额<20%: 降低研究密度"
+    fi
+}
+
+# ── 1. Cron JSON 解析助手 ────────────────────────────────
 get_cron_raw() {
     openclaw cron list 2>/dev/null | awk '/RAW JSON/,0' | tail -n +2 2>/dev/null
 }
@@ -105,6 +137,7 @@ check_memory_today() {
 
 # ── 主程序 ──────────────────────────────────────────────
 log "=== 自愈检查 [$(date +%Y-%m-%d_%H:%M)] ==="
+check_quota  # 必须最先执行
 case "$MODE" in
     check)
         fix_cron
