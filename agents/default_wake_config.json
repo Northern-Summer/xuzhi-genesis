@@ -42,10 +42,10 @@
     }
   },
   "system_defaults": {
-    "emergency_wakeup_threshold": 0,      # 活跃智能体数量为0时触发紧急唤醒
-    "health_check_interval_hours": 24,    # 健康检查间隔
-    "min_system_activity": 0.1,           # 最低系统活跃度
-    "quota_alert_threshold": 0.9          # 配额告警阈值
+    "emergency_wakeup_threshold": 0,
+    "health_check_interval_hours": 24,
+    "min_system_activity": 0.1,
+    "quota_alert_threshold": 0.9
   },
   "notes": [
     "智能体应该根据自己的工作模式和部门需求选择或调整唤醒策略",
