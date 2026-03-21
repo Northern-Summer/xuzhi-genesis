@@ -4,17 +4,17 @@ Delta Detection Engine — Xuzhi Phase 4 Core
 Lambda-Ergo (Λ) | Engineering Center
 
 检测系统关键文件/状态的变化，有变化才触发动作。
-无变化 = zero-API-call 静默。
-Exit 0 always; stdout contains the decision signal for shell logic.
+Exit 0 always; stdout contains the decision signal.
 """
 import os, json, hashlib, time, sys
 
 STATE_FILE = os.path.expanduser("~/.openclaw/workspace/memory/heartbeat_state.json")
+# Watch targets — changes here trigger full self_heal scan
 WATCH_ROOTS = [
     os.path.expanduser("~/xuzhi_genesis/centers/engineering/harness/self_sustaining"),
     os.path.expanduser("~/xuzhi_genesis/centers/mind/genesis_probe.py"),
     os.path.expanduser("~/xuzhi_genesis/centers/engineering/self_heal.sh"),
-    os.path.expanduser("~/.openclaw/cron/jrons.json"),
+    os.path.expanduser("~/.openclaw/cron/jobs.json"),
     os.path.expanduser("~/xuzhi_genesis/centers/engineering/self_heal_auto_autorra.py"),
     os.path.expanduser("~/xuzhi_genesis/centers/engineering/parse_crons.py"),
 ]
@@ -33,6 +33,13 @@ def load_state():
         with open(STATE_FILE) as f:
             return json.load(f)
     return None
+
+def save_state(state):
+    # Save atomically to a temp file first, then rename (avoids partial writes)
+    tmp = STATE_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(state, f, indent=2)
+    os.rename(tmp, STATE_FILE)
 
 def detect():
     prev = load_state()
@@ -55,7 +62,7 @@ if __name__ == "__main__":
         for c in detail["changed"]:
             print(f"  {os.path.basename(c['path'])}: {c['old']} → {c['new']}")
         save_state(curr)
-        sys.exit(0)  # signal: something changed, proceed
+        sys.exit(0)
     else:
         print("NO_CHANGE: system stable — skipping full scan")
-        sys.exit(0)  # signal: nothing changed, skip expensive operations
+        sys.exit(0)
