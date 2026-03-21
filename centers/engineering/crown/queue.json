@@ -1,8 +1,5 @@
 {
-  "queue": [
-    "philosopher",
-    "\u039b"
-  ],
+  "queue": [],
   "generated_at": "2026-03-21T11:50:02.242622",
   "total_wakeups": 30,
   "remaining_quota": 9137
