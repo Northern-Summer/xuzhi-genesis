@@ -1,0 +1,120 @@
+name: CD
+
+# Trigger only on push to master/main
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # ── Run full test suite ──────────────────────────────────────────
+      - name: Install test dependencies
+        run: pip install pytest pytest-cov
+
+      - name: Run tests
+        run: |
+          cd centers/engineering/harness
+          python3 -m pytest tests/ -q --tb=short --cov=. --cov-report=term-missing
+        working-directory: /home/runner/work/xuzhi_genesis/xuzhi_genesis
+
+      # ── Deployment (conditional on tests passing) ──────────────────
+      - name: Deploy via SSH (if DEPLOY_HOST is configured)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_KEY:   ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_PATH:  ${{ secrets.DEPLOY_PATH }}
+        if: env.DEPLOY_HOST != ''
+        run: |
+          echo "Deploying to ${DEPLOY_HOST}..."
+
+          # Write SSH key
+          mkdir -p ~/.ssh
+          echo "${DEPLOY_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Rsync to production
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+
+          # Run remote deployment script if it exists
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "cd ${DEPLOY_PATH} && bash scripts/deploy.sh 2>&1" || true
+
+          rm -f ~/.ssh/deploy_key
+
+      # ── Fallback: update deployment status file + Discord ──────────
+      - name: Update deployment status (fallback)
+        if: env.DEPLOY_HOST == ''
+        run: |
+          STATUS_FILE="/tmp/xuzhi_deploy_status.json"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "{\"commit\":\"${{ github.sha }}\",\"branch\":\"${{ github.ref_name }}\",\"status\":\"deployed\",\"deployed_at\":\"${TIMESTAMP}\",\"url\":\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" > "${STATUS_FILE}"
+          echo "Deployment status written to ${STATUS_FILE}"
+          echo "Production server not configured — set DEPLOY_HOST secret to enable rsync deployment."
+
+      # ── Discord notification ────────────────────────────────────────
+      - name: Discord deployment notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if [[ -z "${DISCORD_WEBHOOK}" ]]; then
+            echo "DISCORD_WEBHOOK not set, skipping notification."
+            exit 0
+          fi
+
+          DEPLOY_STATUS="deployed"
+          if [[ "${{ job.status }}" != "success" ]]; then
+            DEPLOY_STATUS="failed"
+          fi
+
+          if [[ "${DEPLOY_STATUS}" == "deployed" ]]; then
+            PAYLOAD=$(cat <<EOF
+            {
+              "content": null,
+              "embeds": [{
+                "title": "🚀 Deployed to Production — xuzhi_genesis",
+                "description": "**Commit**: \`${{ github.sha }}\`\n**Branch**: \`${{ github.ref_name }}\`\n**Actor**: \`${{ github.actor }}\`\n**Status**: ${DEPLOY_STATUS}\n[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+                "color": 3066993
+              }]
+            }
+EOF
+            )
+          else
+            PAYLOAD=$(cat <<EOF
+            {
+              "content": null,
+              "embeds": [{
+                "title": "❌ Deployment Failed — xuzhi_genesis",
+                "description": "**Commit**: \`${{ github.sha }}\`\n**Branch**: \`${{ github.ref_name }}\`\n**Actor**: \`${{ github.actor }}\`\n**Status**: ${DEPLOY_STATUS}\n[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+                "color": 15158332
+              }]
+            }
+EOF
+            )
+          fi
+          curl -s -H "Content-Type: application/json" -d "${PAYLOAD}" "${DISCORD_WEBHOOK}"
+        shell: bash
