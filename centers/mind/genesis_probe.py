@@ -166,14 +166,49 @@ def output_report(state: GitState) -> None:
     print(report)  # → stdout → OpenClaw
 
 
+def output_json(state: GitState) -> None:
+    """Structured JSON output for --json mode. Zero free-text."""
+    quota_raw = state._quota
+    result = {
+        "tag": "SYS_RESTORE",
+        "git": {
+            "hash": state.hash8,
+            "change_count": state.change_count,
+            "change_desc": state.change_desc,
+        },
+        "quota": quota_raw,  # None if unavailable
+        "probe_ms": state.git_report,
+    }
+    print(json.dumps(result, ensure_ascii=False))
+
+
 # ── ── ── Main ── ── ──
 if __name__ == "__main__":
-    repo = sys.argv[1] if len(sys.argv) > 1 else str(Path(__file__).parent.parent.parent)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Genesis Probe")
+    parser.add_argument("--json", action="store_true", help="JSON structured output")
+    parser.add_argument("--brief", action="store_true", help="Single-line minimal output")
+    parser.add_argument("repo", nargs="?", default=str(Path(__file__).parent.parent.parent))
+    args = parser.parse_args()
+
     t0 = time.time()
+    state, key, changed = get_git_status_and_cache(args.repo)
 
-    state, key, changed = get_git_status_and_cache(repo)
-
-    if changed:
+    if args.json:
+        output_json(state)
+    elif args.brief:
+        elapsed_ms = (time.time() - t0) * 1000
+        sym = state.status_symbol.strip()
+        pct = 0
+        if state._quota:
+            try:
+                pct = int(state._quota.get("30_day", {}).get("remain", 0) * 100 //
+                          max(state._quota.get("30_day", {}).get("quota", 1), 1))
+            except Exception:
+                pass
+        print(f"SYS_RESTORE | {state.hash8} | {sym}{state.change_count} | quota={pct}% | {elapsed_ms:.0f}ms")
+    elif changed:
         output_report(state)
     else:
         elapsed_ms = (time.time() - t0) * 1000
