@@ -75,14 +75,18 @@ def classify_rule_based(message: str):
             return "status", None
 
     # ── 优先级3：simple ──
-    # 精确模板匹配
-    if msg in SIMPLE_EXACT:
-        return "simple", SIMPLE_EXACT[msg]
+    # 精确模板匹配（去掉标点后匹配）
+    msg_stripped = re.sub(r"[？?。.!！]+$", "", msg)
+    if msg_stripped in SIMPLE_EXACT:
+        return "simple", SIMPLE_EXACT[msg_stripped]
     # 极短符号消息（且不含中文）
-    if len(msg) < 6 and re.match(r"^[^\w]+$", msg) and not re.search(r"[\u4e00-\u9fff]", msg):
+    if len(msg_stripped) < 6 and re.match(r"^[^\w]+$", msg_stripped) and not re.search(r"[\u4e00-\u9fff]", msg_stripped):
         return "simple", "👍"
     # 纯英文字母极短消息
-    if len(msg) <= 4 and re.match(r"^[a-zA-Z]+$", msg):
+    if len(msg_stripped) <= 4 and re.match(r"^[a-zA-Z]+$", msg_stripped):
+        return "simple", "👍"
+    # 去掉标点后长度 <= 4 的中文短句
+    if len(msg_stripped) <= 4 and re.search(r"[\u4e00-\u9fff]", msg_stripped):
         return "simple", "👍"
 
     return None, None  # 需要 LFM
