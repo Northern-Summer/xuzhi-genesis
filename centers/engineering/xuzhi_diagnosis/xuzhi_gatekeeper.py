@@ -190,13 +190,18 @@ def gate(message: str) -> dict:
     if not msg:
         return {"intent": "unknown", "reply": "消息为空"}
 
-    # 先查规则
-    _, simple_reply = classify_rule_based(msg)
-    if simple_reply is not None:
-        return {"intent": "simple", "reply": simple_reply, "confidence": 0.98}
+    # ── 优先级1：规则层（不受缓存影响）────────────────────
+    rule_intent, simple_reply = classify_rule_based(msg)
+    if rule_intent in ("simple", "status", "repair"):
+        if rule_intent == "simple":
+            return {"intent": "simple", "reply": simple_reply or "👍", "confidence": 0.98}
+        elif rule_intent == "status":
+            return {"intent": "status", "reply": handle_status(msg), "confidence": 0.95}
+        elif rule_intent == "repair":
+            return {"intent": "repair", "reply": handle_repair(msg), "confidence": 0.9}
 
-    # 规则无精确回复，走完整分类
-    intent = classify(msg)
+    # ── 优先级2：缓存 / LFM（规则无法判断时）────────────
+    intent = classify(msg)  # classify() 会查缓存，缓存miss则调LFM
 
     if intent == "simple":
         return {"intent": "simple", "reply": "👍", "confidence": 0.95}

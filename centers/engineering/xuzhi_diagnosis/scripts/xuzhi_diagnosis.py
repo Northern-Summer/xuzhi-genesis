@@ -18,8 +18,8 @@ import subprocess
 import hashlib
 from datetime import datetime
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-KNOWLEDGE_FILE = os.path.join(os.path.dirname(BASE_DIR), "knowledge", "errors.json")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+KNOWLEDGE_FILE = os.path.join(SCRIPT_DIR, "..", "knowledge", "errors.json")
 TEMPLATE = """你是工程助手（Xuzhi-Λ）。
 输入：错误日志片段
 输出格式（严格按此格式）：
@@ -66,12 +66,21 @@ def check_knowledge_base(error_text):
     """检查知识库，返回匹配结果或 None"""
     norm = normalize_error(error_text)
     knowledge = load_knowledge()
+
+    # 优先级1：精确匹配（norm 非空且完整包含 pattern）
+    if norm:
+        for pattern, entry in knowledge.items():
+            if norm in pattern or pattern in norm:
+                return entry
+
+    # 优先级2：关键词重叠匹配（跳过空 pattern）
+    msg_lower = error_text.lower()
     for pattern, entry in knowledge.items():
-        if norm and norm in pattern:
+        if not pattern:  # 跳过空 pattern
+            continue
+        if any(kw.strip() and kw in msg_lower for kw in pattern.split("-")):
             return entry
-        # 模糊匹配：任何关键词重叠
-        if any(kw in error_text.lower() for kw in pattern.split("-")):
-            return entry
+
     return None
 
 
@@ -84,7 +93,7 @@ def query_ollama(error_text, model="lfm2.5-thinking-optimized:latest"):
             capture_output=True,
             text=True,
             timeout=60,
-            cwd=BASE_DIR
+            cwd=SCRIPT_DIR
         )
         if result.returncode == 0:
             return result.stdout.strip()
@@ -101,12 +110,12 @@ def query_ollama(error_text, model="lfm2.5-thinking-optimized:latest"):
 def update_knowledge(error_text, analysis_result, pattern_key):
     """将新分析结果写入知识库"""
     knowledge = load_knowledge()
-    
+
     # 提取根因和动作（从分析结果中简单解析）
     root_cause = ""
     fix_actions = ""
     confidence = "medium"
-    
+
     if "## 根因" in analysis_result:
         sections = re.split(r"## ", analysis_result)
         for section in sections:
@@ -118,14 +127,29 @@ def update_knowledge(error_text, analysis_result, pattern_key):
                 confidence_line = section.split("\n", 1)[0].strip()
                 if confidence_line:
                     confidence = confidence_line
-    
+
+    # pattern_key 为空时，从原始消息生成一个唯一 key
+    if not pattern_key:
+        # 取前 8 个字符 / 4 个汉字 + 错误码
+        key = error_text.strip()[:12].replace(" ", "_").replace("\n", "_")
+        # 如果仍为空，用时间戳
+        if not key:
+            key = f"entry_{datetime.now().strftime('%H%M%S')}"
+        # 避免覆盖已有 key
+        base = key
+        n = 1
+        while key in knowledge:
+            key = f"{base}_{n}"
+            n += 1
+        pattern_key = key
+
     knowledge[pattern_key] = {
         "root_cause": root_cause,
         "fix": fix_actions,
         "confidence": confidence,
         "pattern": pattern_key,
         "last_seen": datetime.now().isoformat(),
-        "analysis": analysis_result[:500]  # 保留完整分析备查
+        "analysis": analysis_result[:500]
     }
     save_knowledge(knowledge)
     return knowledge[pattern_key]
