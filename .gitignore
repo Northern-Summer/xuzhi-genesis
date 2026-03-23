@@ -91,3 +91,14 @@ centers/intelligence/config/feeds/
 *.rar
 *.7z
 exports/
+
+# Intent cache (gatekeeper cache)
+.intent_cache/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Diagnosis/debug folders (临时调试用)
+xuzhi_diagnosis/
