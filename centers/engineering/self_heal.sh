@@ -22,13 +22,18 @@ is_healthy() {
 }
 
 # ── P2-1: OpenClaw auth token 健康检查 ──────────────
+# 精确区分：token太短（警告）vs 认证失败（错误）vs 权限不足（警告）
 check_auth_token() {
     local output ret
     output=$(openclaw status 2>&1); ret=$?
-    if (( ret != 0 )) || echo "$output" | grep -qi "auth\|token\|unauthorized\|401"; then
-        log "⚠️ AUTH TOKEN 问题检测: exit=$ret"
-        echo "$output" | grep -qi "auth\|token\|unauthorized\|401" && log "  → 确认: output 含 auth 关键词"
-        # 尝试刷新 token（如果用的是 gpg 加密备份）
+    
+    # 真正的认证失败关键词（不是警告）
+    local auth_fail_patterns="unauthorized|401|403|authentication failed|invalid token|token expired"
+    local auth_warn_patterns="token looks short|missing scope|permission denied"
+    
+    # 检查是否有真正的认证失败
+    if echo "$output" | grep -qiE "$auth_fail_patterns"; then
+        log "⚠️ AUTH FAILURE 检测: Token 认证失败"
         local gpg_token="${HOME}/.xuzhi_memory/auth_token.gpg"
         if [[ -f "$gpg_token" ]]; then
             log "  → 发现 gpg 加密 token 备份，尝试解密恢复..."
@@ -42,6 +47,16 @@ check_auth_token() {
         fi
         return 1
     fi
+    
+    # 检查是否有警告（非致命）
+    if echo "$output" | grep -qiE "$auth_warn_patterns"; then
+        echo "$output" | grep -qi "token looks short" && log "⚠️ AUTH TOKEN 警告: Token 长度不足（21字符 < 推荐长度）"
+        echo "$output" | grep -qi "missing scope" && log "⚠️ AUTH TOKEN 警告: CLI 权限不足（missing scope: operator.read）"
+        echo "$output" | grep -qi "permission denied" && log "⚠️ AUTH TOKEN 警告: Permission denied"
+        # 警告不触发重启，但记录
+    fi
+    
+    # exit 0 + 无 fail 关键词 = 健康
     return 0
 }
 

@@ -2,9 +2,11 @@
 """
 死亡检测：扫描评分≤0的智能体，以及超过休眠阈值未活动的智能体。
 放置于心智中心。
+双轨时间源：heartbeats 目录（实时） > daily log（回溯） > ratings.last_active（兜底）
 """
 import json
 import shutil
+import subprocess
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -14,6 +16,8 @@ DEPARTMENTS_JSON = Path.home() / 'xuzhi_genesis' / 'centers' / 'engineering' / '
 AGENTS_DIR = Path.home() / '.openclaw' / 'agents'
 ARCHIVE_DIR = Path.home() / '.openclaw' / 'archive' / 'agents'
 BROADCAST_FILE = Path.home() / '.openclaw' / 'workspace' / 'broadcast.md'
+HEARTBEAT_DIR = Path.home() / '.xuzhi_memory' / 'heartbeats'
+DAILY_DIR = Path.home() / '.xuzhi_memory' / 'daily'
 
 ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -34,6 +38,70 @@ def get_department_threshold(dept):
     except:
         return 7
 
+def get_heartbeat_ts(agent_id):
+    """从 heartbeats 目录读取实时心跳时间"""
+    hb_file = HEARTBEAT_DIR / f"{agent_id}.json"
+    if hb_file.exists():
+        try:
+            with open(hb_file) as f:
+                hb = json.load(f)
+            return datetime.fromisoformat(hb.get('ts', '1970-01-01T00:00:00'))
+        except:
+            pass
+    return None
+
+def get_last_daily_mention(agent_id):
+    """从 daily log 回溯最近活跃时间"""
+    greek_map = {
+        'Lambda': 'Λ', 'lambda': 'Λ',
+        'Phi': 'Φ', 'phi': 'Φ',
+        'Delta': 'Δ', 'delta': 'Δ',
+        'Theta': 'Θ', 'theta': 'Θ',
+        'Gamma': 'Γ', 'gamma': 'Γ',
+        'Omega': 'Ω', 'omega': 'Ω',
+        'Psi': 'Ψ', 'psi': 'Ψ',
+    }
+    symbol = greek_map.get(agent_id, agent_id)
+    today = datetime.now().strftime('%Y-%m-%d')
+    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    for day in [today, yesterday]:
+        log_file = DAILY_DIR / f"{day}.md"
+        if log_file.exists():
+            try:
+                result = subprocess.run(
+                    ['grep', '-n', f'@{symbol}', str(log_file)],
+                    capture_output=True, text=True
+                )
+                lines = result.stdout.strip().split('\n')
+                if lines and lines[0]:
+                    # 取最后一条记录的时间戳
+                    last_line = lines[-1]
+                    # 格式: "## [2026-03-23T14:35:04Z] @Λ ..."
+                    ts_str = last_line.split(']')[0].replace('## [', '')
+                    return datetime.fromisoformat(ts_str.replace('Z', '+00:00').replace('+00:00', ''))
+            except:
+                pass
+    return None
+
+def get_last_active(agent_id, props):
+    """三轨并行获取最后活跃时间"""
+    # 轨1: heartbeats 目录（实时）
+    hb_ts = get_heartbeat_ts(agent_id)
+    if hb_ts:
+        return hb_ts
+    # 轨2: daily log 回溯
+    daily_ts = get_last_daily_mention(agent_id)
+    if daily_ts:
+        return daily_ts
+    # 轨3: ratings.json.last_active（兜底）
+    last_active_str = props.get('last_active')
+    if last_active_str:
+        try:
+            return datetime.fromisoformat(last_active_str)
+        except:
+            pass
+    return None
+
 def main():
     if not RATINGS_JSON.exists():
         print("ratings.json 不存在，退出")
@@ -51,15 +119,10 @@ def main():
             dead_agents.append(agent_id)
             continue
 
-        # 2. 检查最后活动时间
-        last_active_str = props.get('last_active')
-        if not last_active_str:
-            # 如果没有记录，视为刚刚活跃，跳过（避免误杀）
-            continue
-
-        try:
-            last_active = datetime.fromisoformat(last_active_str)
-        except:
+        # 2. 检查最后活动时间（三轨并行）
+        last_active = get_last_active(agent_id, props)
+        if not last_active:
+            # 如果没有任何时间记录，视为刚刚活跃，跳过（避免误杀）
             continue
 
         dept = props.get('department', 'mind')
