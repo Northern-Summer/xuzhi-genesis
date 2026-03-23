@@ -1,0 +1,37 @@
+{
+  "798-1000-minimax-infini": {
+    "root_cause": "上游 infini-ai 平台请求频率超限（HTTP 798）或账户配额耗尽（HTTP 797），minimax-m2.7 模型触发限流保护",
+    "fix": "1. 立即禁用所有 isolated agentTurn cron jobs\n2. 等待 15-30 分钟让配额冷却\n3. 验证：curl https://api.infini-ai.com/maas/sse/v1/models -H 'Authorization: Bearer <key>'",
+    "confidence": "high",
+    "pattern": "798-1000-minimax-infini",
+    "last_seen": "2026-03-23T07:00:00",
+    "analysis": "798 = infini-ai 平台内部请求频率限制代号，1000 = 内部错误分类代码。触发条件：短时间内多 isolate session 叠加请求。持续时间：通常 15-30 分钟自动解除。",
+    "category": "platform_rate_limit"
+  },
+  "797-1000-minimax-infini": {
+    "root_cause": "上游 infini-ai 平台账户配额耗尽，不是频率问题，是总量用尽",
+    "fix": "1. 确认是新配额周期还是已达上限\n2. 如是新配额周期：等待（通常 UTC 0 点刷新）\n3. 如已达上限：联系平台或切换 API key",
+    "confidence": "high",
+    "pattern": "797-1000-minimax-infini",
+    "last_seen": "2026-03-23T07:00:00",
+    "analysis": "797 与 798 的区别：798 = 请求频率超限（临时），797 = 账户配额耗尽（需要等待刷新或购买更多配额）。",
+    "category": "platform_quota"
+  },
+  "798-1000": {
+    "root_cause": "API 请求频率超过平台限制（798）或账户配额耗尽（797）",
+    "fix": "1. 停止所有非必要 LLM 调用\n2. 等待 15-30 分钟\n3. 检查 API key 额度",
+    "confidence": "high",
+    "pattern": "798-1000",
+    "last_seen": "2026-03-23T07:00:00",
+    "analysis": "798/797 是平台级限流，不是本机问题。冬眠协议是唯一解。",
+    "category": "platform_rate_limit"
+  },
+  "docker": {
+    "root_cause": "Insufficient docker repository access",
+    "fix": "1. Verify docker configuration",
+    "confidence": "置信度",
+    "pattern": "docker",
+    "last_seen": "2026-03-23T15:51:16.355915",
+    "analysis": "Thinking...\nOkay, let's tackle this. The user provided an error log segment: \"docker: Error response from daemon: unknown: failed to resolve reference docker.io/library/centos:latest\". \n\nFirst, I need to understand what this error means. The message says that docker couldn't resolve the reference to docker.io/library/centos:latest. That probably means that the docker daemon couldn't find the docker.io/library directory or the specific version. \n\nThe root cause here is likely related to the docke"
+  }
+}
