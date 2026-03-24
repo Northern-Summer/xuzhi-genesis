@@ -10,9 +10,10 @@ from datetime import datetime, timedelta
 import sqlite3
 
 TASKS_JSON = Path.home() / ".openclaw" / "tasks" / "tasks.json"
-RATINGS_JSON = Path.home() / ".openclaw" / "centers" / "mind" / "society" / "ratings.json"
+RATINGS_JSON = Path.home() / "xuzhi_genesis" / "centers" / "mind" / "society" / "ratings.json"
 HYPOTHESIS_TEMPLATES = Path.home() / "xuzhi_genesis" / "config" / "hypothesis_templates.json"
 KNOWLEDGE_DB = Path.home() / "xuzhi_genesis" / "centers" / "intelligence" / "knowledge" / "knowledge.db"
+OPENCLAW_JSON = Path.home() / ".openclaw" / "openclaw.json"
 
 # 部门主题映射（作为后备）
 DEPT_THEMES = {
