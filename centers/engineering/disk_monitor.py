@@ -234,6 +234,16 @@ def generate_minimal_cron(wakeup_interval: int = 10):
 
 # 配额监控（每30分钟）
 */30 * * * * $HOME/.openclaw/centers/engineering/crown/quota_monitor.py
+
+# ── Xuzhi 系统核心调度（必须保留）────────────────────────
+# 统一调度器：议会+自维持+heal+任务执行（每10分钟）
+*/10 * * * * bash $HOME/.xuzhi_memory/unified_cron.sh >> $HOME/.xuzhi_memory/task_center/unified_cron.log 2>&1
+
+# 看门狗：每分钟检查 Gateway 健康（连续2次失败则重启）
+* * * * * python3 $HOME/.xuzhi_memory/watchdog_daemon.py >> $HOME/.xuzhi_memory/task_center/watchdog.log 2>&1
+
+# 配额守卫：每30分钟检查 Token 配额（>85% 禁用 AutoRA）
+*/30 * * * * python3 $HOME/.xuzhi_memory/quota_guard.sh >> $HOME/.xuzhi_memory/task_center/quota_guard.log 2>&1
 """
     CRON_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(CRON_FILE, 'w') as f:
