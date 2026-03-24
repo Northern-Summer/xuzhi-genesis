@@ -244,6 +244,9 @@ def generate_minimal_cron(wakeup_interval: int = 10):
 
 # 配额守卫：每30分钟检查 Token 配额（>85% 禁用 AutoRA）
 */30 * * * * python3 $HOME/.xuzhi_memory/quota_guard.sh >> $HOME/.xuzhi_memory/task_center/quota_guard.log 2>&1
+
+# Session GC：每30分钟清理超过4小时的 expired subagent sessions
+*/30 * * * * python3 $HOME/.xuzhi_memory/session_gc.py >> $HOME/.xuzhi_memory/task_center/session_gc.log 2>&1
 """
     CRON_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(CRON_FILE, 'w') as f:
