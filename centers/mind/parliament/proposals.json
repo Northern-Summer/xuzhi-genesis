@@ -19,7 +19,27 @@
       },
       "result": "passed",
       "executed": false
+    },
+    {
+      "id": 2,
+      "title": "\u6d4b\u8bd5\u63d0\u6848",
+      "description": "\u9a8c\u8bc1\u6d41\u52a8\u7b14\u8bb0\u673a\u5236",
+      "proposer": "\u039e",
+      "created_at": "2026-03-25T13:23:56.184090+00:00",
+      "status": "passed",
+      "votes": {
+        "\u039e": "yes",
+        "\u0394": "yes",
+        "\u0398": "yes",
+        "\u0393": "yes",
+        "\u03a9": "yes",
+        "\u03a8": "yes",
+        "\u03a6": "yes"
+      },
+      "result": "passed",
+      "executed": false,
+      "flow_holder": null
     }
   ],
-  "last_id": 1
+  "last_id": 2
 }
