@@ -40,7 +40,16 @@ def update_json(path, updater):
         f.close()
 
 def is_alive(agent_info, dept_threshold, now):
-    """判断智能体是否存活：评分>0 且 last_active 未超过部门阈值"""
+    """判断智能体是否存活。
+    支持两种ratings格式：
+    - 旧格式(灾变前): {score, last_active, department}
+    - Xi-era格式: {reliability, quality, notes}
+    Xi-era格式：reliability > 0 即视为活跃（无last_active追踪）。
+    """
+    # Xi-era格式：reliability/quality字段
+    if 'reliability' in agent_info or 'quality' in agent_info:
+        return agent_info.get('reliability', 0) > 0 or agent_info.get('quality', 0) > 0
+    # 旧格式：score + last_active + department
     score = agent_info.get("score", 0)
     if score <= 0:
         return False
