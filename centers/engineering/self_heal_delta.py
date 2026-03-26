@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Delta Detection Engine — Xuzhi Phase 4 Core
-Lambda-Ergo (Λ) | Engineering Center
+Xi (Ξ) | Engineering Center
 
 检测系统关键文件/状态的变化，有变化才触发动作。
 Exit 0 always; stdout contains the decision signal.

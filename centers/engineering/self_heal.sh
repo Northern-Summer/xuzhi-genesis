@@ -1,15 +1,15 @@
 #!/bin/bash
 # watchdog.sh — 系统级 watchdog（不依赖 OpenClaw cron）
 # 设计原则：状态优先 → 重启 → 恢复
-# 流程：预 checkpoint → 重启 → 唤醒 → Λ 读 checkpoint 恢复
+# 流程：预 checkpoint → 重启 → 唤醒 → Ξ 读 checkpoint 恢复
 # 2026-03-22 重写
 
 LOG="/tmp/watchdog.log"
 STATE="/tmp/watchdog.state"
-CHECKPOINT="/tmp/lambda_task_checkpoint.json"
+CHECKPOINT="/tmp/xi_task_checkpoint.json"
 MAX_RESTARTS_PER_HOUR=3
 WINDOW=3600
-PRECHECK_TIMEOUT=15  # 预 checkpoint 等待 Λ 响应的超时（秒）
+PRECHECK_TIMEOUT=15  # 预 checkpoint 等待 Ξ 响应的超时（秒）
 GATEWAY_STARTUP=15   # Gateway 重启后等待就绪的时间（秒）
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [WD] $*" | tee -a "$LOG" >&2; }
@@ -61,16 +61,16 @@ check_auth_token() {
 }
 
 # ============================================================
-# Λ 任务状态读写（通过 openclaw system event 触发 Λ 写文件）
+# Ξ 任务状态读写（通过 openclaw system event 触发 Ξ 写文件）
 # ============================================================
 
-# 通知 Λ 写预 checkpoint（重启前）
-request_lambda_precheckpoint() {
-    log "请求 Λ 保存当前任务状态..."
+# 通知 Ξ 写预 checkpoint（重启前）
+request_xi_precheckpoint() {
+    log "请求 Ξ 保存当前任务状态..."
     local ts now
     ts=$(date +%s)
     openclaw system event \
-        --text "[Λ-WATCHDOG] Gateway 即将重启。请立即将当前任务状态写入 $CHECKPOINT，格式如下，然后回复 DONE:
+        --text "[Ξ-WATCHDOG] Gateway 即将重启。请立即将当前任务状态写入 $CHECKPOINT，格式如下，然后回复 DONE:
 
 {\n  \"task\": \"任务名\",\n  \"task_detail\": \"具体在做什么\",\n  \"phase\": \"阶段\",\n  \"timestamp\": \"$ts\",\n  \"last_action\": \"最后一步动作\",\n  \"next_action\": \"下一步要做什么\",\n  \"status\": \"in_progress\"\n}
 
@@ -79,40 +79,40 @@ request_lambda_precheckpoint() {
     log "已发送预 checkpoint 请求，等待响应（最多 ${PRECHECK_TIMEOUT}s）..."
 }
 
-# 检查 Λ 是否已写入 checkpoint
+# 检查 Ξ 是否已写入 checkpoint
 wait_for_checkpoint() {
     local waited=0
     while (( waited < PRECHECK_TIMEOUT )); do
         if [[ -f "$CHECKPOINT" ]]; then
             local task=$(cat "$CHECKPOINT" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('task','unknown'))" 2>/dev/null || echo "unknown")
-            log "✅ Λ 已写 checkpoint: task=$task"
+            log "✅ Ξ 已写 checkpoint: task=$task"
             return 0
         fi
         sleep 2
         (( waited += 2 ))
     done
-    log "⚠️ Λ 未在 ${PRECHECK_TIMEOUT}s 内响应，写入 fallback checkpoint"
-    # Λ 未响应，可能是忙碌或已死，写入 fallback 状态供恢复时参考
-    echo "{\"task\":\"unknown\",\"status\":\"unconfirmed\",\"timestamp\":\"$(date +%s)\",\"note\":\"Λ did not respond to pre-checkpoint request\"}" > "$CHECKPOINT"
+    log "⚠️ Ξ 未在 ${PRECHECK_TIMEOUT}s 内响应，写入 fallback checkpoint"
+    # Ξ 未响应，可能是忙碌或已死，写入 fallback 状态供恢复时参考
+    echo "{\"task\":\"unknown\",\"status\":\"unconfirmed\",\"timestamp\":\"$(date +%s)\",\"note\":\"Ξ did not respond to pre-checkpoint request\"}" > "$CHECKPOINT"
     return 1
 }
 
-# 通知 Λ 从 checkpoint 恢复（重启后）
-wake_lambda_with_restore() {
-    log "唤醒 Λ 并指示从 checkpoint 恢复..."
+# 通知 Ξ 从 checkpoint 恢复（重启后）
+wake_xi_with_restore() {
+    log "唤醒 Ξ 并指示从 checkpoint 恢复..."
     local checkpoint_info=""
     if [[ -f "$CHECKPOINT" ]]; then
         checkpoint_info=$(cat "$CHECKPOINT" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(f\"上次任务: {d.get('task','?')} | 阶段: {d.get('phase','?')} | 下一步: {d.get('next_action','?')}\")" 2>/dev/null || echo "checkpoint_exists_but_unreadable")
     fi
 
     openclaw system event \
-        --text "[Λ-WATCHDOG] Gateway 已重启。请执行以下步骤：
+        --text "[Ξ-WATCHDOG] Gateway 已重启。请执行以下步骤：
 
 1. 读取 $CHECKPOINT 确认上次任务状态
 2. 执行 bash ~/.xuzhi_memory/session_restore.sh --brief
 3. 根据 checkpoint 中的 next_action 决定是否继续任务
 4. 更新 checkpoint status 为 'recovered' 或 'completed'
-5. 回复「Λ 已恢复：{任务名} → {执行结果}」
+5. 回复「Ξ 已恢复：{任务名} → {执行结果}」
 
 Checkpoint 信息: $checkpoint_info" \
         --timeout 30000 --json 2>/dev/null
@@ -146,9 +146,9 @@ get_restart_count() {
 }
 
 # ============================================================
-# Λ 主会话存活检查
+# Ξ 主会话存活检查
 # ============================================================
-check_lambda_session() {
+check_xi_session() {
     local output
     output=$(openclaw sessions 2>/dev/null | grep "^direct.*agent:main:main" | head -1)
     [[ -n "$output" ]]
@@ -167,11 +167,11 @@ main() {
 
     if is_healthy; then
         log "Gateway 健康 ✅"
-        if check_lambda_session; then
-            log "Λ 主会话存活 ✅"
+        if check_xi_session; then
+            log "Ξ 主会话存活 ✅"
         else
-            log "⚠️ Gateway 活着，但 Λ 主会话已死，尝试唤醒..."
-            wake_lambda_with_restore
+            log "⚠️ Gateway 活着，但 Ξ 主会话已死，尝试唤醒..."
+            wake_xi_with_restore
         fi
         log "========== 检查完成 =========="
         exit 0
@@ -187,8 +187,8 @@ main() {
         exit 1
     fi
 
-    log "执行阶段一：请求 Λ 预 checkpoint..."
-    request_lambda_precheckpoint
+    log "执行阶段一：请求 Ξ 预 checkpoint..."
+    request_xi_precheckpoint
     wait_for_checkpoint || log "预 checkpoint 阶段有警告，继续重启..."
 
     log "执行阶段二：重启 Gateway..."
@@ -216,16 +216,16 @@ main() {
         fi
     fi
 
-    log "执行阶段三：唤醒 Λ..."
+    log "执行阶段三：唤醒 Ξ..."
     sleep 3
-    wake_lambda_with_restore
+    wake_xi_with_restore
 
     log "执行阶段四：验证恢复..."
     sleep 8
-    if check_lambda_session; then
-        log "✅ Λ 主会话已确认存活"
+    if check_xi_session; then
+        log "✅ Ξ 主会话已确认存活"
     else
-        log "⚠️ Λ 主会话状态未知（可能需要 /new 手动唤醒）"
+        log "⚠️ Ξ 主会话状态未知（可能需要 /new 手动唤醒）"
     fi
 
     # 读取并记录本次恢复的 checkpoint

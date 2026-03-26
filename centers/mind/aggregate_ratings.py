@@ -12,7 +12,7 @@ RATINGS_JSON = Path.home() / ".openclaw" / "centers" / "mind" / "society" / "rat
 
 # openclaw_id → 希腊字母 reverse map
 OPENCLAW_TO_GREEK = {
-    "main": "Λ",
+    "main": "Ξ",
     "xuzhi-phi-sentinel": "Φ",
     "xuzhi-delta-forge": "Δ",
     "xuzhi-theta-seeker": "Θ",

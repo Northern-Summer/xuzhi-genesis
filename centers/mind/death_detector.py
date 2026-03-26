@@ -53,7 +53,7 @@ def get_heartbeat_ts(agent_id):
 def get_last_daily_mention(agent_id):
     """从 daily log 回溯最近活跃时间"""
     greek_map = {
-        'Lambda': 'Λ', 'lambda': 'Λ',
+        'Lambda': 'Ξ', 'lambda': 'Ξ',
         'Phi': 'Φ', 'phi': 'Φ',
         'Delta': 'Δ', 'delta': 'Δ',
         'Theta': 'Θ', 'theta': 'Θ',

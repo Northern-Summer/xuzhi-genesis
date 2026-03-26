@@ -240,7 +240,7 @@ def generate_minimal_cron(wakeup_interval: int = 10):
 */10 * * * * bash $HOME/.xuzhi_memory/unified_cron.sh >> $HOME/.xuzhi_memory/task_center/unified_cron.log 2>&1
 
 # 看门狗：每分钟检查 Gateway 健康（连续2次失败则重启）
-* * * * * python3 $HOME/.xuzhi_memory/watchdog_daemon.py >> $HOME/.xuzhi_memory/task_center/watchdog.log 2>&1
+# REMOVED: * * * * * python3 $HOME/.xuzhi_memory/watchdog_daemon.py >> $HOME/.xuzhi_memory/task_center/watchdog.log 2>&1
 
 # 配额守卫：每30分钟检查 Token 配额（>85% 禁用 AutoRA）
 */30 * * * * python3 $HOME/.xuzhi_memory/quota_guard.sh >> $HOME/.xuzhi_memory/task_center/quota_guard.log 2>&1
