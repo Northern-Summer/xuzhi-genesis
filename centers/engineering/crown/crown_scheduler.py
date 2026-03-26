@@ -75,7 +75,14 @@ def main():
             dept_threshold[dept_id] = info.get("sleepThreshold", 7)
             dept_quota[dept_id] = info.get("quota_percent", 0)
 
-    remaining = quota['limit'] - quota['used']
+    # 支持两种 quota_usage.json 格式：
+    # 1. 扁平格式（历史）：{"limit": N, "used": M}
+    # 2. 嵌套格式（quota_monitor生成）：{"5_hour": {"quota": N, "used": M, ...}, ...}
+    if 'limit' in quota:
+        remaining = quota['limit'] - quota['used']
+    else:
+        tier = quota.get('5_hour', quota.get(list(quota.keys())[0], {}))
+        remaining = tier.get('quota', 0) - tier.get('used', 0)
     if remaining > 200:
         wakeups_per_hour = 30
     elif remaining > 100:
