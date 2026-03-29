@@ -25,6 +25,7 @@ Capability: 简短描述
 | ID | Domain | Author | Capability | 状态 |
 |----|--------|--------|------------|------|
 | PRT-001 | Mind/Parliament | Ξ | 击鼓传花流动笔记议会机制 | active |
+| PRT-002 | System/All | Ξ | 无感保活 — 观察他人产出，不发消息打断 | active |
 
 > 规则：每次向 `protocols/` 目录添加新协议，必须同步更新本 INDEX。
 
