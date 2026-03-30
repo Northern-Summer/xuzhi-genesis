@@ -1,0 +1,21 @@
+% ETP Implication Search
+% Seeking counterexample to: Equation359 => Equation65
+%
+% Source definition (Lean notation):
+%   Eq359: x ◇ x = (x ◇ x) ◇ x
+%   Eq65: x = y ◇ (x ◇ (y ◇ x))
+%
+% Mace4 notation: * denotes the binary operation
+
+set(prolog).
+formulas(assumptions).
+% Equation 359: x * x = (x * x) * x
+  (all x all y all z all w x * x = (x * x) * x).
+
+% Negation of Equation 65: NOT (x = y * (x * (y * x)))
+% A counterexample satisfies eq_from but violates eq_to
+  (exists x x /= y * (x * (y * x))).
+end_of_list.
+
+formulas(go).
+end_of_list.

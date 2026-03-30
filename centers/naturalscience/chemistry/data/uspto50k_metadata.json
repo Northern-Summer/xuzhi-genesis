@@ -1,0 +1,35 @@
+{
+  "dataset_name": "USPTO-50k",
+  "source": "https://huggingface.co/datasets/pingzhili/uspto-50k",
+  "download_date": "2026-03-30T16:57:21.383451",
+  "splits": {
+    "train": {
+      "file": "uspto50k_train.csv",
+      "sha256": "f8c95b759d3c9f5953001ad6bf12905fb1a971de38e8fd02c88beda5b63848af",
+      "size_bytes": 22035277,
+      "num_records": 49015,
+      "columns": [
+        "class",
+        "id",
+        "prod_smiles",
+        "rxn_smiles",
+        "prod_smiles_pop",
+        "keep"
+      ]
+    },
+    "validation": {
+      "file": "uspto50k_validation.csv",
+      "sha256": "be158088bfc6b561a3006317dc5b1f24cfecdf0e176261b657a8db0c3f0389e4",
+      "size_bytes": 446885,
+      "num_records": 1001,
+      "columns": [
+        "class",
+        "id",
+        "prod_smiles",
+        "rxn_smiles",
+        "prod_smiles_pop",
+        "keep"
+      ]
+    }
+  }
+}

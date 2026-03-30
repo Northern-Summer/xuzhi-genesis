@@ -1,0 +1,6 @@
+name = "SimpleMagma"
+version = "0.1.0"
+defaultTargets = ["SimpleMagma"]
+
+[[lean_lib]]
+name = "SimpleMagma"

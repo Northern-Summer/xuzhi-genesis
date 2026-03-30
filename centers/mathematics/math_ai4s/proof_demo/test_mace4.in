@@ -1,0 +1,17 @@
+formulas(theory).
+% Test magma existence - find a model where Eq65 holds
+% Eq65: x = y * (x * y)
+
+% Define a magma operation *
+m1 * m1 = m1.
+m1 * m2 = m1.
+m2 * m1 = m2.
+m2 * m2 = m2.
+
+% Eq65 constraint: x = y * (x * y)
+m1 = m2 * (m1 * m2).
+m2 = m1 * (m2 * m1).
+m1 = m1 * (m1 * m1).
+m2 = m2 * (m2 * m2).
+
+end_of_list.

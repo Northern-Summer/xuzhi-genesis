@@ -1,0 +1,14 @@
+{
+  "dataset": "USPTO-50k",
+  "analysis_date": "2026-03-30",
+  "total_reactions": 50016,
+  "train_val_split": "49.0:1",
+  "reaction_classes": 10,
+  "smiles_validity_sample": {
+    "sample_size": 1000,
+    "valid": 1000,
+    "valid_rate": "100.0%"
+  },
+  "avg_atoms_per_product": 25.4,
+  "avg_reactants_per_reaction": 1.7
+}
